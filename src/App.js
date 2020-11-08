@@ -5,13 +5,17 @@ import "bootstrap/dist/css/bootstrap.css";
 import Row from "./Row";
 import "./App.css";
 
-var symbolsMap = {
+//Unicode symbols for the X and O
+var symbolsMap =
+{
   2: ["marking", "32"],
   0: ["marking marking-x", 9587],
   1: ["marking marking-o", 9711]
 };
 
-var patterns = [
+//All the possible patterns that might result in a win
+var patterns =
+[
   //horizontal
   [0, 1, 2],
   [3, 4, 5],
@@ -25,13 +29,40 @@ var patterns = [
   [2, 4, 6]
 ];
 
-var AIScore = { 2: 1, 0: 2, 1: 0 };
+//-- Board Layout: --
+//     0  1  2
+//     3  4  5
+//     6  7  8
 
-class App extends React.Component {
-  constructor(props) {
+// Board Values:
+// 0: X (Player)
+// 1: O (AI or Player 2)
+// 2: Empty
+
+
+// This is the weight that the AI assigns a square based on its board value
+var AIScore = { 2: 1, // When a square is empty, the weight is 1
+                1: 0, // When a square is occupied by the AI, the weight is 0
+                0: 2  // When a square is occupied by the player, the weight is 2
+              };
+// This means that the AI will favor patterns that the player is already in and play defensively
+
+
+class App extends React.Component
+{
+
+//------------------------------------------------------------------------------
+// Constructor
+//------------------------------------------------------------------------------
+  constructor(props)
+  {
     super(props);
     this.state = {
+      //Board is represented with a 1x9 array
+      //2 means empty,
       boardState: new Array(9).fill(2),
+      //Turn tracks whose turn it is
+      //When playing against AI, 1=AI turn
       turn: 0,
       active: true,
       mode: "AI"
@@ -43,86 +74,157 @@ class App extends React.Component {
     this.makeAIMove = this.makeAIMove.bind(this);
   }
 
-  processBoard() {
+//------------------------------------------------------------------------------
+// Process Board
+//------------------------------------------------------------------------------
+  processBoard()
+  {
     var won = false;
-    patterns.forEach(pattern => {
+
+    //Do this code for every pattern that might result in a win
+    patterns.forEach(pattern =>
+    {
+
+      // Get the board value at the first pattern position
       var firstMark = this.state.boardState[pattern[0]];
 
-      if (firstMark != 2) {
-        var marks = this.state.boardState.filter((mark, index) => {
+      // If the first position is not empty...
+      if (firstMark != 2)
+      {
+          //Recall that boardState is a 1x9 Array
+          //The filter() method creates an array filled with all array elements that pass a test (provided as a function).
+        var marks = this.state.boardState.filter((mark, index) =>
+        {
           return pattern.includes(index) && mark == firstMark; //looks for marks matching the first in pattern's index
         });
 
-        if (marks.length == 3) {
+        // marks is either uninitialized, or is an array with length between 1 and 3
+
+        // Check for a win
+        if (marks.length == 3)
+        {
           document.querySelector("#message1").innerHTML =
             String.fromCharCode(symbolsMap[marks[0]][1]) + " wins!";
           document.querySelector("#message1").style.display = "block";
-          pattern.forEach(index => {
+
+          //Change the winning pattern's background to green
+          pattern.forEach(index =>
+          {
             var id = index + "-" + firstMark;
             document.getElementById(id).parentNode.style.background = "#d4edda";
           });
+
           this.setState({ active: false });
           won = true;
         }
       }
     });
 
-    if (!this.state.boardState.includes(2) && !won) {
+    //Check if the board has no empty spaces left
+    if (!this.state.boardState.includes(2) && !won)
+    {
       document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
       document.querySelector("#message2").style.display = "block";
       this.setState({ active: false });
-    } else if (this.state.mode == "AI" && this.state.turn == 1 && !won) {
+    }
+    //Check if we should do the AI move
+    else if (this.state.mode == "AI" && this.state.turn == 1 && !won)
+    {
       this.makeAIMove();
     }
   }
 
-  makeAIMove() {
+//------------------------------------------------------------------------------
+// Make AI Move
+//------------------------------------------------------------------------------
+  makeAIMove()
+  {
+    //Contains the indices of all available squares
     var emptys = [];
+
+    //The corresponding score of each square, which we use to decide where to move ourselves
     var scores = [];
-    this.state.boardState.forEach((mark, index) => {
+
+    //Fill the empty array with all the available indices
+    this.state.boardState.forEach((mark, index) =>
+    {
       if (mark == 2) emptys.push(index);
     });
 
-    emptys.forEach(index => {
+    //Loop through all the empty positions
+    emptys.forEach(index =>
+    {
       var score = 0;
-      patterns.forEach(pattern => {
-        if (pattern.includes(index)) {
-          var xCount = 0;
-          var oCount = 0;
-          pattern.forEach(p => {
+
+      //For this particular empty position, loop through all the winning patterns
+      patterns.forEach(pattern =>
+      {
+        // We only care if the pattern includes our current empty position
+        if (pattern.includes(index))
+        {
+          var xCount = 0; // X is the Player
+          var oCount = 0; // O is AI
+
+          //For each square in the current pattern:
+          pattern.forEach(p =>
+          {
+            //Zero means X, 1 means O
             if (this.state.boardState[p] == 0) xCount += 1;
             else if (this.state.boardState[p] == 1) oCount += 1;
+
+            // Get the score for the current square:
+            //  - If the square is the current empty one, its score is zero
+            //  - Otherwise assign a score based on whether the square is empty, player1, or AI occupied
             score += p == index ? 0 : AIScore[this.state.boardState[p]];
           });
-          if (xCount >= 2) score += 10;
-          if (oCount >= 2) score += 20;
+
+          if (xCount >= 2) score += 10; //Medium boost if the player has two X's in this pattern
+          if (oCount >= 2) score += 20; //Big boost if the AI has two O's in this pattern
         }
       });
+
       scores.push(score);
     });
 
     var maxIndex = 0;
-    scores.reduce(function(maxVal, currentVal, currentIndex) {
-      if (currentVal >= maxVal) {
+    //Get the maximum score from the scores array
+    scores.reduce(function(maxVal, currentVal, currentIndex)
+    {
+      if (currentVal >= maxVal)
+      {
         maxIndex = currentIndex;
         return currentVal;
       }
       return maxVal;
     });
+
+    //Choose the square with the highest score
     this.handleNewMove(emptys[maxIndex]);
   }
 
-  handleReset(e) {
+//------------------------------------------------------------------------------
+// Handle Reset
+//------------------------------------------------------------------------------
+  handleReset(e)
+  {
     if (e) e.preventDefault();
     document
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
-    this.setState({
+
+    this.setState(
+    {
       boardState: new Array(9).fill(2),
       turn: 0,
       active: true
     });
   }
+
+//------------------------------------------------------------------------------
+// Handle New Move
+//
+// <<< Lambda functions are a curse upon humankind >>>
+//------------------------------------------------------------------------------
   handleNewMove(id) {
     this.setState(
       prevState => {
@@ -140,14 +242,24 @@ class App extends React.Component {
     );
   }
 
-  handleModeChange(e) {
+//------------------------------------------------------------------------------
+// Handle Mode Change
+//------------------------------------------------------------------------------
+  handleModeChange(e)
+  {
     e.preventDefault();
-    if (e.target.getAttribute("href").includes("AI")) {
+
+    //Switch to AI mode
+    if (e.target.getAttribute("href").includes("AI"))
+    {
       e.target.style.background = "#d4edda";
       document.querySelector("#twop").style.background = "none";
       this.setState({ mode: "AI" });
       this.handleReset(null);
-    } else if (e.target.getAttribute("href").includes("2P")) {
+    }
+    //Switch to PVP
+    else if (e.target.getAttribute("href").includes("2P"))
+    {
       e.target.style.background = "#d4edda";
       document.querySelector("#ai").style.background = "none";
       this.setState({ mode: "2P" });
@@ -155,7 +267,11 @@ class App extends React.Component {
     }
   }
 
-  render() {
+//------------------------------------------------------------------------------
+// Render
+//------------------------------------------------------------------------------
+  render()
+  {
     const rows = [];
     for (var i = 0; i < 3; i++)
       rows.push(
@@ -196,4 +312,3 @@ class App extends React.Component {
 }
 
 export default App;
-
