@@ -25,7 +25,16 @@ var patterns = [
   [2, 4, 6]
 ];
 
-var AIScore = { 2: 1, 0: 2, 1: 0 };
+//Weights to determine how the AI scores a square containing:
+
+var AIScore = { 2: 1,   //Empty given a score of 1
+                0: 2,   //Player given a score of 2
+                1: 0 }; //AI given a score of 0
+
+//This is the primary means of setting difficulty, must be between 0 and 1
+//Suggested: Easy=0.6 Medium=0.4, Hard=0.2
+var mistakeProbability = 0.4;
+
 
 class App extends React.Component {
   constructor(props) {
@@ -36,11 +45,13 @@ class App extends React.Component {
       active: true,
       mode: "AI"
     };
+
     this.handleNewMove = this.handleNewMove.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleModeChange = this.handleModeChange.bind(this);
     this.processBoard = this.processBoard.bind(this);
     this.makeAIMove = this.makeAIMove.bind(this);
+    this._getScore = this._getScore.bind(this);
   }
 
   processBoard() {
@@ -92,10 +103,12 @@ class App extends React.Component {
           pattern.forEach(p => {
             if (this.state.boardState[p] === 0) xCount += 1;
             else if (this.state.boardState[p] === 1) oCount += 1;
-            score += p === index ? 0 : AIScore[this.state.boardState[p]];
+
+            score += p === index ? 0 : this._getScore(AIScore[this.state.boardState[p]]);
+
           });
-          if (xCount >= 2) score += 10;
-          if (oCount >= 2) score += 20;
+          if (xCount >= 2) score += this._getScore(10);
+          if (oCount >= 2) score += this._getScore(20);
         }
       });
       scores.push(score);
@@ -110,6 +123,25 @@ class App extends React.Component {
       return maxVal;
     });
     this.handleNewMove(emptys[maxIndex]);
+  }
+
+//Returns the passed in score with the chance of the AI making a mistake
+//"Mistakes" will bias the score += 5
+  _getScore(score) {
+    //Check if AI should make a mistake
+    if(Math.random() < mistakeProbability)
+    {
+        if(Math.random() > 0.5)
+        {
+            score += Math.round(Math.random() * 5);
+        }
+        else
+        {
+            score -= Math.round(Math.random() * 5);
+        }
+    }
+
+    return score;
   }
 
   handleReset(e) {
