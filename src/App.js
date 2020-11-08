@@ -48,12 +48,12 @@ class App extends React.Component {
     patterns.forEach(pattern => {
       var firstMark = this.state.boardState[pattern[0]];
 
-      if (firstMark != 2) {
+      if (firstMark !== 2) {
         var marks = this.state.boardState.filter((mark, index) => {
-          return pattern.includes(index) && mark == firstMark; //looks for marks matching the first in pattern's index
+          return pattern.includes(index) && mark === firstMark; //looks for marks matching the first in pattern's index
         });
 
-        if (marks.length == 3) {
+        if (marks.length === 3) {
           document.querySelector("#message1").innerHTML =
             String.fromCharCode(symbolsMap[marks[0]][1]) + " wins!";
           document.querySelector("#message1").style.display = "block";
@@ -71,7 +71,7 @@ class App extends React.Component {
       document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
       document.querySelector("#message2").style.display = "block";
       this.setState({ active: false });
-    } else if (this.state.mode == "AI" && this.state.turn == 1 && !won) {
+    } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
       this.makeAIMove();
     }
   }
@@ -80,7 +80,7 @@ class App extends React.Component {
     var emptys = [];
     var scores = [];
     this.state.boardState.forEach((mark, index) => {
-      if (mark == 2) emptys.push(index);
+      if (mark === 2) emptys.push(index);
     });
 
     emptys.forEach(index => {
@@ -90,9 +90,9 @@ class App extends React.Component {
           var xCount = 0;
           var oCount = 0;
           pattern.forEach(p => {
-            if (this.state.boardState[p] == 0) xCount += 1;
-            else if (this.state.boardState[p] == 1) oCount += 1;
-            score += p == index ? 0 : AIScore[this.state.boardState[p]];
+            if (this.state.boardState[p] === 0) xCount += 1;
+            else if (this.state.boardState[p] === 1) oCount += 1;
+            score += p === index ? 0 : AIScore[this.state.boardState[p]];
           });
           if (xCount >= 2) score += 10;
           if (oCount >= 2) score += 20;
@@ -196,4 +196,3 @@ class App extends React.Component {
 }
 
 export default App;
-
