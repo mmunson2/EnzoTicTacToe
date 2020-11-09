@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./Row";
 import "./App.css";
+import firebase from './firebase.js';
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -27,7 +28,7 @@ var patterns = [
 
 var AIScore = { 2: 1, 0: 2, 1: 0 };
 
-class App extends React.Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -43,11 +44,21 @@ class App extends React.Component {
     this.makeAIMove = this.makeAIMove.bind(this);
   }
 
+  componentDidMount() {
+   console.log("mounted!");
+   const boardRef = firebase.database().ref('board');
+   boardRef.on('value', (snapshot) => {
+     this.setState(snapshot.val(), () => {
+      this.processBoard();
+    });
+   });
+  }
+
   processBoard() {
+     console.log("In processBoard");
     var won = false;
     patterns.forEach(pattern => {
       var firstMark = this.state.boardState[pattern[0]];
-
       if (firstMark != 2) {
         var marks = this.state.boardState.filter((mark, index) => {
           return pattern.includes(index) && mark == firstMark; //looks for marks matching the first in pattern's index
@@ -61,7 +72,10 @@ class App extends React.Component {
             var id = index + "-" + firstMark;
             document.getElementById(id).parentNode.style.background = "#d4edda";
           });
-          this.setState({ active: false });
+          var tempState = this.state;
+          tempState.active = false;
+          firebase.database().ref('board').set(tempState);
+          //this.setState({ active: false });
           won = true;
         }
       }
@@ -70,10 +84,14 @@ class App extends React.Component {
     if (!this.state.boardState.includes(2) && !won) {
       document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
       document.querySelector("#message2").style.display = "block";
-      this.setState({ active: false });
+      var tempState = this.state;
+      tempState.active = false;
+      firebase.database().ref('board').set(tempState);
+      //this.setState({ active: false });
     } else if (this.state.mode == "AI" && this.state.turn == 1 && !won) {
       this.makeAIMove();
     }
+
   }
 
   makeAIMove() {
@@ -117,14 +135,43 @@ class App extends React.Component {
     document
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
-    this.setState({
+    
+      var tempState = this.state;
+      tempState.boardState = new Array(9).fill(2);
+      tempState.turn = 0;
+      tempState.active = true;
+
+      firebase.database().ref('board').set(tempState);
+    
+    /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
+      this.setState({
       boardState: new Array(9).fill(2),
       turn: 0,
       active: true
     });
+    */
   }
+
+  //updates the board with newest move and flips the "turn" to the other player
+  //  create new board state
+  //     slice the board array upto the id the move is made in
+  //     add the "turn" to that element
+  //     appened the rest of the array after id
+  //  update firebase with new array
   handleNewMove(id) {
-    this.setState(
+   var tempState = this.state;
+   
+   tempState.boardState = this.state.boardState.slice(0, id)
+      .concat(this.state.turn)
+      .concat(this.state.boardState.slice(id+1));
+
+   tempState.turn = (this.state.turn + 1) % 2;
+   console.log(this.state);
+   
+   firebase.database().ref('board').set(tempState);
+
+  /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
+   this.setState(
       prevState => {
         return {
           boardState: prevState.boardState
@@ -138,19 +185,25 @@ class App extends React.Component {
         this.processBoard();
       }
     );
+    */
   }
 
   handleModeChange(e) {
     e.preventDefault();
+    var tempState = this.state;
     if (e.target.getAttribute("href").includes("AI")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#twop").style.background = "none";
-      this.setState({ mode: "AI" });
+      //this.setState({ mode: "AI" });
+      tempState.mode = "AI";
+      firebase.database().ref('board').set(tempState);
       this.handleReset(null);
     } else if (e.target.getAttribute("href").includes("2P")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#ai").style.background = "none";
-      this.setState({ mode: "2P" });
+      //this.setState({ mode: "2P" });
+      tempState.mode = "2P";
+      firebase.database().ref('board').set(tempState);
       this.handleReset(null);
     }
   }
