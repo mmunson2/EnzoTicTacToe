@@ -4,6 +4,8 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./Row";
 import "./App.css";
+import Header from "./Header";
+import Menu from "./Menu";
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -223,9 +225,7 @@ class App extends React.Component {
       if (this.state.userName === "") {
         return (
           <div>
-            <header class="header">
-              <h3>Tic-Tac-Toe</h3>
-            </header>
+            <Header />
               <div class="usernamediv">
                 <form>
                   <label for="username"><b>Enter your username:</b></label>
@@ -243,33 +243,8 @@ class App extends React.Component {
       } else if (this.state.firstLoad) {
         return (
           <div>
-            <header class="header">
-              <h3>Tic-Tac-Toe</h3>
-            </header>
-            <div class="flexContainer">
-              <div>
-                <h4>Leaderboard:</h4>
-                <ul>
-                  <b>
-                  <li>1. User1</li>
-                  <li>2. User2</li>
-                  <li>3. User3</li>
-                  <li>4. User4</li>
-                  <li>5. User5</li>
-                  <li>You: 100th</li>
-                  </b>
-                </ul>
-              </div>
-              <div class="menu">
-                  <button class="button" onClick={this.handleMenuClick}>Play Offline</button>
-                  <br/>
-                  <button class="button" onClick={this.handleMenuClick}>Play with friends</button>
-                  <br/>
-                  <button class="button" onClick={this.handleMenuClick}>Settings</button>
-
-              </div>
-
-            </div>
+            <Header />
+            <Menu handleMenuClick={this.handleMenuClick}/>
         </div>
         );
 
@@ -278,9 +253,7 @@ class App extends React.Component {
 
         return (
           <div>
-            <div class="header">
-              <h3>Tic-Tac-Toe</h3>
-            </div>
+            <Header />
             <div class="container jumbotron" id="container">
               <p>
                 <div>Select Mode:</div>
