@@ -7,6 +7,33 @@
   cursor: pointer;
 }
 
+.header {
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+.usernamediv{
+  text-align: center;
+  padding-top: 100px;
+}
+
+
+.flexContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu {
+  padding-left: 75px;
+}
+ul {
+  list-style-type: none;
+  padding-top: 15px;
+}
+
 .button {
   margin-right: 10px;
   margin-top: 10px;
@@ -69,6 +96,7 @@
 
 .container {
   text-align: center;
+  margin-top: -20px;
 }
 
 #ai {

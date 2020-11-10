@@ -43,7 +43,9 @@ class App extends React.Component {
       boardState: new Array(9).fill(2),
       turn: 0,
       active: true,
-      mode: "AI"
+      mode: "AI",
+      userName: "",
+      firstLoad: true
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -52,6 +54,8 @@ class App extends React.Component {
     this.processBoard = this.processBoard.bind(this);
     this.makeAIMove = this.makeAIMove.bind(this);
     this._getScore = this._getScore.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
   }
 
   processBoard() {
@@ -155,6 +159,7 @@ class App extends React.Component {
       active: true
     });
   }
+
   handleNewMove(id) {
     this.setState(
       prevState => {
@@ -187,6 +192,20 @@ class App extends React.Component {
     }
   }
 
+  //placeholder for username submit
+  //currently just updates username state to placeholder 
+  handleSubmit(event) {
+    event.preventDefault();
+    this.setState({userName: "PlaceHolder"});
+  }
+
+  // placeholder for menu click event
+  // currently just updates firstload state to false
+  handleMenuClick(event) {
+    event.preventDefault();
+    this.setState({firstLoad: false});
+  }
+
   render() {
     const rows = [];
     for (var i = 0; i < 3; i++)
@@ -198,27 +217,89 @@ class App extends React.Component {
           active={this.state.active}
         />
       );
-    return (
-      <div>
-        <div class="container jumbotron" id="container">
-          <h3>Tic-Tac-Toe</h3>
-          <p>Team Enzo</p>
-          <p>
-            <div>Select Mode:</div>
-            <button class="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
-            <button class="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
-            <div class="reset">
-            <button class="button" href="#" onClick={this.handleReset}>Reset Game</button>
+      
+      // checks if username is empty or not
+      // render username page if empty
+      if (this.state.userName === "") {
+        return (
+          <div>
+            <header class="header">
+              <h3>Tic-Tac-Toe</h3>
+            </header>
+              <div class="usernamediv">
+                <form>
+                  <label for="username"><b>Enter your username:</b></label>
+                  <br/>
+                  <input type="text" id="username" name="username"></input>
+                  <br/>
+                  <button class="button" onClick={this.handleSubmit}>Submit</button>
+                </form>
+              </div>
+          </div>
+        );
+      
+      //checks its the component's first load
+      //loads menu if it is
+      } else if (this.state.firstLoad) {
+        return (
+          <div>
+            <header class="header">
+              <h3>Tic-Tac-Toe</h3>
+            </header>
+            <div class="flexContainer">
+              <div>
+                <h4>Leaderboard:</h4>
+                <ul>
+                  <b>
+                  <li>1. User1</li>
+                  <li>2. User2</li>
+                  <li>3. User3</li>
+                  <li>4. User4</li>
+                  <li>5. User5</li>
+                  <li>You: 100th</li>
+                  </b>
+                </ul>
+              </div>
+              <div class="menu">
+                  <button class="button" onClick={this.handleMenuClick}>Play Offline</button>
+                  <br/>
+                  <button class="button" onClick={this.handleMenuClick}>Play with friends</button>
+                  <br/>
+                  <button class="button" onClick={this.handleMenuClick}>Settings</button>
+
+              </div>
+
             </div>
-          </p>
-          
-          <div className="board">{rows}</div>
-          <p>{String.fromCharCode(symbolsMap[this.state.turn][1])}'s turn</p>
-          <p class="alert alert-success" role="alert" id="message1"></p>
-          <p class="alert alert-info" role="alert" id="message2"></p>
         </div>
-      </div>
-    );
+        );
+
+      // loads game board and functionality
+      } else {
+
+        return (
+          <div>
+            <div class="header">
+              <h3>Tic-Tac-Toe</h3>
+            </div>
+            <div class="container jumbotron" id="container">
+              <p>
+                <div>Select Mode:</div>
+                <button class="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
+                <button class="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
+                <div class="reset">
+                <button class="button" href="#" onClick={this.handleReset}>Reset Game</button>
+                </div>
+              </p>
+              
+              <div className="board">{rows}</div>
+              <br/>
+              <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
+              <p class="alert alert-success" role="alert" id="message1"></p>
+              <p class="alert alert-info" role="alert" id="message2"></p>
+            </div>
+          </div>
+        );
+      }
   }
 }
 
