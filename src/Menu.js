@@ -5,7 +5,7 @@ class Menu extends React.Component {
         return (
             <div class="flexContainer">
               <div>
-                <h4>Leaderboard:</h4>
+                <h4>Leaderboard</h4>
                 <ul>
                   <b>
                   <li>1. User1</li>

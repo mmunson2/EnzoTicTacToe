@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
 
 .col {
   padding: 0px;
@@ -11,11 +12,19 @@
   text-align: center;
   padding: 20px;
   margin-top: 50px;
+  font-family: 'Righteous', sans-serif;
+  font-size: 50px;
 }
 
 .usernamediv{
   text-align: center;
   padding-top: 100px;
+  font-family: 'Righteous', sans-serif;
+  font-size: 20px;
+}
+
+input {
+  width: 10%;
 }
 
 
@@ -24,6 +33,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  font-family: 'Righteous', sans-serif;
 }
 
 .menu {
@@ -45,7 +55,7 @@ ul {
 	display:inline-block;
 	cursor:pointer;
 	color:#666666;
-	font-family:Arial;
+	font-family: 'Righteous', Arial;
 	font-size:15px;
 	font-weight:bold;
 	padding:6px 24px;
@@ -97,6 +107,7 @@ ul {
 .container {
   text-align: center;
   margin-top: -20px;
+  font-family: 'Righteous', sans-serif;
 }
 
 #ai {

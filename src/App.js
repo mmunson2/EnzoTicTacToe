@@ -228,7 +228,7 @@ class App extends React.Component {
             <Header />
               <div class="usernamediv">
                 <form>
-                  <label for="username"><b>Enter your username:</b></label>
+                  <label for="username">Enter your username:</label>
                   <br/>
                   <input type="text" id="username" name="username"></input>
                   <br/>
