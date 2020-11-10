@@ -201,24 +201,19 @@ class App extends React.Component {
     return (
       <div>
         <div class="container jumbotron" id="container">
-          <h3>TIC TAC TOE</h3>
+          <h3>Tic-Tac-Toe</h3>
+          <p>Team Enzo</p>
           <p>
-            <a href="./?AI" onClick={this.handleModeChange} id="ai">
-              Versus AI
-            </a>{" "}
-            ||
-            <a href="./?2P" onClick={this.handleModeChange} id="twop">
-              {" "}
-              2 Players
-            </a>{" "}
-            ||
-            <a href="#" onClick={this.handleReset}>
-              {" "}
-              Reset board
-            </a>
+            <div>Select Mode:</div>
+            <button class="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
+            <button class="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
+            <div class="reset">
+            <button class="button" href="#" onClick={this.handleReset}>Reset Game</button>
+            </div>
           </p>
-          <p>{String.fromCharCode(symbolsMap[this.state.turn][1])}'s turn</p>
+          
           <div className="board">{rows}</div>
+          <p>{String.fromCharCode(symbolsMap[this.state.turn][1])}'s turn</p>
           <p class="alert alert-success" role="alert" id="message1"></p>
           <p class="alert alert-info" role="alert" id="message2"></p>
         </div>
