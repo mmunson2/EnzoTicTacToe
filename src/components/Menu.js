@@ -25,11 +25,18 @@ class Menu extends React.Component {
                 </ul>
               </div>
               <div className="menu">
-                  <button className="button" onClick={this.props.handleMenuClick}>Play Offline</button>
-                  <br/>
-                  <button className="button" onClick={this.props.handleMenuClick}>Play with friends</button>
-                  <br/>
-                  <button className="button" onClick={this.props.handleMenuClick}>Settings</button>
+                  <div className="menuSelect">
+                    <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
+                    <span onClick={this.props.handleMenuClick}>Play Offline</span>  
+                  </div>
+                  <div className="menuSelect">
+                    <img src={oIcon} alt="o icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
+                    <span onClick={this.props.handleMenuClick}>Play with friends</span>  
+                  </div>
+                  <div className="menuSelect">
+                    <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
+                    <span onClick={this.props.handleMenuClick}>Settings</span>  
+                  </div>
               </div>
             </div>
         );

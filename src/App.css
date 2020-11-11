@@ -97,6 +97,21 @@ ul {
   font-size: 22px;
 }
 
+.menuSelect {
+  display: flex;
+  align-items:center;
+  font-size: 22px;
+  cursor:pointer;
+  padding-bottom: 15px;
+}
+
+.menuIcon {
+  max-width: 45px;
+  max-height: auto;
+  padding-right: 10px;
+  cursor:pointer;
+}
+
 .marking-x {
   color: lightblue;
 }
