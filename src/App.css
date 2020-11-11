@@ -85,6 +85,18 @@ ul {
   vertical-align: middle;
 }
 
+.leaderimg {
+  max-width: 45px;
+  max-height: auto;
+  padding-right: 10px;
+}
+
+.leadertext {
+  display: flex;
+  align-items:center;
+  font-size: 22px;
+}
+
 .marking-x {
   color: lightblue;
 }

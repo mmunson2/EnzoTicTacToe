@@ -1,11 +1,15 @@
 import React from "react";
+import leaderboard from "./assets/leaderboard.png";
 
 class Menu extends React.Component {
     render() {
         return (
             <div class="flexContainer">
               <div>
-                <h4>Leaderboard</h4>
+                    <div class="leadertext">
+                        <img src={leaderboard} alt="leaderboard" class="leaderimg"/>
+                        <span>Leaderboard</span>
+                    </div>
                 <ul>
                   <b>
                   <li>1. User1</li>
