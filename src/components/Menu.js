@@ -1,5 +1,8 @@
 import React from "react";
 import leaderboard from "../assets/leaderboard.png";
+import xIcon from "../assets/icon-x.png";
+import oIcon from "../assets/icon-o.png";
+import settingsIcon from "../assets/settings.png";
 
 class Menu extends React.Component {
     render() {
