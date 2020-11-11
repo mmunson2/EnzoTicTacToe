@@ -4,10 +4,10 @@ import leaderboard from "../assets/leaderboard.png";
 class Menu extends React.Component {
     render() {
         return (
-            <div class="flexContainer">
+            <div className="flexContainer">
               <div>
-                    <div class="leadertext">
-                        <img src={leaderboard} alt="leaderboard" class="leaderimg"/>
+                    <div className="leadertext">
+                        <img src={leaderboard} alt="leaderboard" className="leaderimg"/>
                         <span>Leaderboard</span>
                     </div>
                 <ul>
@@ -21,12 +21,12 @@ class Menu extends React.Component {
                   </b>
                 </ul>
               </div>
-              <div class="menu">
-                  <button class="button" onClick={this.props.handleMenuClick}>Play Offline</button>
+              <div className="menu">
+                  <button className="button" onClick={this.props.handleMenuClick}>Play Offline</button>
                   <br/>
-                  <button class="button" onClick={this.props.handleMenuClick}>Play with friends</button>
+                  <button className="button" onClick={this.props.handleMenuClick}>Play with friends</button>
                   <br/>
-                  <button class="button" onClick={this.props.handleMenuClick}>Settings</button>
+                  <button className="button" onClick={this.props.handleMenuClick}>Settings</button>
               </div>
             </div>
         );

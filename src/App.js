@@ -226,13 +226,13 @@ class App extends React.Component {
         return (
           <div>
             <Header />
-              <div class="usernamediv">
+              <div className="usernamediv">
                 <form>
-                  <label for="username">Enter your username:</label>
+                  <label htmlFor="username">Enter your username:</label>
                   <br/>
                   <input type="text" id="username" name="username"></input>
                   <br/>
-                  <button class="button" onClick={this.handleSubmit}>Submit</button>
+                  <button className="button" onClick={this.handleSubmit}>Submit</button>
                 </form>
               </div>
           </div>
@@ -254,21 +254,21 @@ class App extends React.Component {
         return (
           <div>
             <Header />
-            <div class="container jumbotron" id="container">
+            <div className="container jumbotron" id="container">
               <p>
                 <div>Select Mode:</div>
-                <button class="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
-                <button class="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
-                <div class="reset">
-                <button class="button" href="#" onClick={this.handleReset}>Reset Game</button>
+                <button className="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
+                <button className="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
+                <div className="reset">
+                <button className="button" href="#" onClick={this.handleReset}>Reset Game</button>
                 </div>
               </p>
               
               <div className="board">{rows}</div>
               <br/>
               <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
-              <p class="alert alert-success" role="alert" id="message1"></p>
-              <p class="alert alert-info" role="alert" id="message2"></p>
+              <p className="alert alert-success" role="alert" id="message1"></p>
+              <p className="alert alert-info" role="alert" id="message2"></p>
             </div>
           </div>
         );

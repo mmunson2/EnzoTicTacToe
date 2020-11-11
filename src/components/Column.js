@@ -26,7 +26,7 @@ class Column extends React.Component {
   render() {
     return (
       <div className="col" onClick={this.handleNewMove}>
-        <div class={symbolsMap[this.props.marking][0]} id={this.props.id}>
+        <div className={symbolsMap[this.props.marking][0]} id={this.props.id}>
           {String.fromCharCode(symbolsMap[this.props.marking][1])}
         </div>
       </div>
