@@ -1,5 +1,5 @@
 import React from "react";
-import leaderboard from "./assets/leaderboard.png";
+import leaderboard from "../assets/leaderboard.png";
 
 class Menu extends React.Component {
     render() {

@@ -2,10 +2,10 @@
 
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import Row from "./Row";
+import Row from "./components/Row";
 import "./App.css";
-import Header from "./Header";
-import Menu from "./Menu";
+import Header from "./components/Header";
+import Menu from "./components/Menu";
 
 var symbolsMap = {
   2: ["marking", "32"],
