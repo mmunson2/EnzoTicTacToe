@@ -11,7 +11,7 @@ class Column extends React.Component {
     super(props);
     this.handleNewMove = this.handleNewMove.bind(this);
   }
-  
+
   handleNewMove(e) {
     if (!this.props.active) {
       document.querySelector("#message1").style.display = "none";
@@ -19,14 +19,14 @@ class Column extends React.Component {
         "Game is already over! Reset if you want to play again.";
       document.querySelector("#message2").style.display = "block";
       return false;
-    } else if (this.props.marking == 2)
+    } else if (this.props.marking === 2)
       this.props.onNewMove(parseInt(e.target.id));
   }
 
   render() {
     return (
       <div className="col" onClick={this.handleNewMove}>
-        <div class={symbolsMap[this.props.marking][0]} id={this.props.id}>
+        <div className={symbolsMap[this.props.marking][0]} id={this.props.id}>
           {String.fromCharCode(symbolsMap[this.props.marking][1])}
         </div>
       </div>

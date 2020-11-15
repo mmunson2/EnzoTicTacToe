@@ -2,9 +2,11 @@
 
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import Row from "./Row";
+import Row from "./components/Row";
 import "./App.css";
 import firebase from './firebase.js';
+import Header from "./components/Header";
+import Menu from "./components/Menu";
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -26,7 +28,16 @@ var patterns = [
   [2, 4, 6]
 ];
 
-var AIScore = { 2: 1, 0: 2, 1: 0 };
+//Weights to determine how the AI scores a square containing:
+
+var AIScore = { 2: 1,   //Empty given a score of 1
+                0: 2,   //Player given a score of 2
+                1: 0 }; //AI given a score of 0
+
+//This is the primary means of setting difficulty, must be between 0 and 1
+//Suggested: Easy=0.6 Medium=0.4, Hard=0.2
+var mistakeProbability = 0.4;
+
 
 class App extends Component {
   constructor(props) {
@@ -35,13 +46,19 @@ class App extends Component {
       boardState: new Array(9).fill(2),
       turn: 0,
       active: true,
-      mode: "AI"
+      mode: "AI",
+      userName: "",
+      firstLoad: true
     };
+
     this.handleNewMove = this.handleNewMove.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleModeChange = this.handleModeChange.bind(this);
     this.processBoard = this.processBoard.bind(this);
     this.makeAIMove = this.makeAIMove.bind(this);
+    this._getScore = this._getScore.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
   }
 
   componentDidMount() {
@@ -59,12 +76,13 @@ class App extends Component {
     var won = false;
     patterns.forEach(pattern => {
       var firstMark = this.state.boardState[pattern[0]];
-      if (firstMark != 2) {
+
+      if (firstMark !== 2) {
         var marks = this.state.boardState.filter((mark, index) => {
-          return pattern.includes(index) && mark == firstMark; //looks for marks matching the first in pattern's index
+          return pattern.includes(index) && mark === firstMark; //looks for marks matching the first in pattern's index
         });
 
-        if (marks.length == 3) {
+        if (marks.length === 3) {
           document.querySelector("#message1").innerHTML =
             String.fromCharCode(symbolsMap[marks[0]][1]) + " wins!";
           document.querySelector("#message1").style.display = "block";
@@ -88,7 +106,7 @@ class App extends Component {
       tempState.active = false;
       firebase.database().ref('board').set(tempState);
       //this.setState({ active: false });
-    } else if (this.state.mode == "AI" && this.state.turn == 1 && !won) {
+    } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
       this.makeAIMove();
     }
 
@@ -98,7 +116,7 @@ class App extends Component {
     var emptys = [];
     var scores = [];
     this.state.boardState.forEach((mark, index) => {
-      if (mark == 2) emptys.push(index);
+      if (mark === 2) emptys.push(index);
     });
 
     emptys.forEach(index => {
@@ -108,12 +126,14 @@ class App extends Component {
           var xCount = 0;
           var oCount = 0;
           pattern.forEach(p => {
-            if (this.state.boardState[p] == 0) xCount += 1;
-            else if (this.state.boardState[p] == 1) oCount += 1;
-            score += p == index ? 0 : AIScore[this.state.boardState[p]];
+            if (this.state.boardState[p] === 0) xCount += 1;
+            else if (this.state.boardState[p] === 1) oCount += 1;
+
+            score += p === index ? 0 : this._getScore(AIScore[this.state.boardState[p]]);
+
           });
-          if (xCount >= 2) score += 10;
-          if (oCount >= 2) score += 20;
+          if (xCount >= 2) score += this._getScore(10);
+          if (oCount >= 2) score += this._getScore(20);
         }
       });
       scores.push(score);
@@ -128,6 +148,25 @@ class App extends Component {
       return maxVal;
     });
     this.handleNewMove(emptys[maxIndex]);
+  }
+
+//Returns the passed in score with the chance of the AI making a mistake
+//"Mistakes" will bias the score += 5
+  _getScore(score) {
+    //Check if AI should make a mistake
+    if(Math.random() < mistakeProbability)
+    {
+        if(Math.random() > 0.5)
+        {
+            score += Math.round(Math.random() * 5);
+        }
+        else
+        {
+            score -= Math.round(Math.random() * 5);
+        }
+    }
+
+    return score;
   }
 
   handleReset(e) {
@@ -208,6 +247,20 @@ class App extends Component {
     }
   }
 
+  //placeholder for username submit
+  //currently just updates username state to placeholder 
+  handleSubmit(event) {
+    event.preventDefault();
+    this.setState({userName: "PlaceHolder"});
+  }
+
+  // placeholder for menu click event
+  // currently just updates firstload state to false
+  handleMenuClick(event) {
+    event.preventDefault();
+    this.setState({firstLoad: false});
+  }
+
   render() {
     const rows = [];
     for (var i = 0; i < 3; i++)
@@ -219,34 +272,61 @@ class App extends Component {
           active={this.state.active}
         />
       );
-    return (
-      <div>
-        <div class="container jumbotron" id="container">
-          <h3>TIC TAC TOE</h3>
-          <p>
-            <a href="./?AI" onClick={this.handleModeChange} id="ai">
-              Versus AI
-            </a>{" "}
-            ||
-            <a href="./?2P" onClick={this.handleModeChange} id="twop">
-              {" "}
-              2 Players
-            </a>{" "}
-            ||
-            <a href="#" onClick={this.handleReset}>
-              {" "}
-              Reset board
-            </a>
-          </p>
-          <p>{String.fromCharCode(symbolsMap[this.state.turn][1])}'s turn</p>
-          <div className="board">{rows}</div>
-          <p class="alert alert-success" role="alert" id="message1"></p>
-          <p class="alert alert-info" role="alert" id="message2"></p>
+      
+      // checks if username is empty or not
+      // render username page if empty
+      if (this.state.userName === "") {
+        return (
+          <div>
+            <Header />
+              <div className="usernamediv">
+                <form>
+                  <label htmlFor="username">Enter your username:</label>
+                  <br/>
+                  <input type="text" id="username" name="username"></input>
+                  <br/>
+                  <button className="button" onClick={this.handleSubmit}>Submit</button>
+                </form>
+              </div>
+          </div>
+        );
+      
+      //checks its the component's first load
+      //loads menu if it is
+      } else if (this.state.firstLoad) {
+        return (
+          <div>
+            <Header />
+            <Menu handleMenuClick={this.handleMenuClick}/>
         </div>
-      </div>
-    );
+        );
+
+      // loads game board and functionality
+      } else {
+
+        return (
+          <div>
+            <Header />
+            <div className="container jumbotron" id="container">
+              <p>
+                <div>Select Mode:</div>
+                <button className="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
+                <button className="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
+                <div className="reset">
+                <button className="button" href="#" onClick={this.handleReset}>Reset Game</button>
+                </div>
+              </p>
+              
+              <div className="board">{rows}</div>
+              <br/>
+              <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
+              <p className="alert alert-success" role="alert" id="message1"></p>
+              <p className="alert alert-info" role="alert" id="message2"></p>
+            </div>
+          </div>
+        );
+      }
   }
 }
 
 export default App;
-
