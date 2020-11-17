@@ -52,22 +52,22 @@ Games structure will need to store a unique id for the game, the players of the 
 }
 ```
 
-##Using Firebase
+## Using Firebase
 
 The easiest way to use firebase will be to push the state of the board or user when it is updated and then 'listen' for any updates that come through in our react code. 
 
 The set the state of a board something like the following code is used.
 
-'''javascript
+```javascript
 var tempState = this.state;
 firebase.database().ref('board/${gameID}').set(tempState);
-'''
+```
 
 This will set the branch in 'board' that the specified gameID to be the same as the current state of the game.
 
 To listen for changes we need to add a componentDidMount() function to our component so that when our component is fully rendered we start listening for changes in the data base. It should look something like this:
 
-'''javascript
+```javascript
 componentDidMount() {
    const boardRef = firebase.database().ref('board/${gameID}');
    boardRef.on('value', (snapshot) => {
@@ -76,10 +76,10 @@ componentDidMount() {
       });
    });
 }
-'''
+```
 
 Here we create the boardRef variable at the branch for this gameID. 
-*By calling the "boardRef.on ('value', (snapshot)..." function we complete some action when the database is updated. 
-*Snapshot will be equal to whatever value the database has at that moment in time.
-*We use the this.setState(snapshot.val() to update the database to the new value and then,
-*Call processBoard() in the call back for setState in order to update the visuals/make AI moves as needed after getting new values.
+* By calling the "boardRef.on ('value', (snapshot)..." function we complete some action when the database is updated. 
+* Snapshot will be equal to whatever value the database has at that moment in time.
+* We use the this.setState(snapshot.val() to update the database to the new value and then,
+* Call processBoard() in the call back for setState in order to update the visuals/make AI moves as needed after getting new values.
