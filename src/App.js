@@ -6,6 +6,7 @@ import Row from "./components/Row";
 import "./App.css";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
+import Settings from "./components/Settings";
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -47,7 +48,8 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      firstLoad: true
+      firstLoad: true,
+      enterSettings: false
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -58,6 +60,7 @@ class App extends React.Component {
     this._getScore = this._getScore.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.handleSettingsClick = this.handleSettingsClick.bind(this);
   }
 
   processBoard() {
@@ -208,6 +211,12 @@ class App extends React.Component {
     this.setState({firstLoad: false});
   }
 
+  // handles component switch to settings component when menu selected
+  handleSettingsClick(event) {
+    event.preventDefault();
+    this.setState({enterSettings: !this.state.enterSettings});
+  }
+
   render() {
     const rows = [];
     for (var i = 0; i < 3; i++)
@@ -238,17 +247,24 @@ class App extends React.Component {
           </div>
         );
       
-      //checks its the component's first load
+      //checks if its the component's first load
       //loads menu if it is
-      } else if (this.state.firstLoad) {
+      } else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick}/>
+            <Menu handleMenuClick={this.handleMenuClick} handleSettingsClick={this.handleSettingsClick}/>
         </div>
         );
 
       // loads game board and functionality
+      } else if (this.state.enterSettings) {
+        return (
+          <div>
+            <Settings handleSettingsClick={this.handleSettingsClick}/>
+          </div>
+        )
+
       } else {
 
         return (

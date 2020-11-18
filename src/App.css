@@ -27,13 +27,28 @@ input {
   width: 10%;
 }
 
-
 .flexContainer {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   font-family: 'Righteous', sans-serif;
+}
+
+.setButtons {
+  justify-content: center;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.single {
+  padding-right: 100px;
+  text-align: center;
+}
+
+.multi {
+  text-align: center;
+  padding-bottom: 72px;
 }
 
 .menu {
@@ -93,7 +108,7 @@ ul {
 
 .leadertext {
   display: flex;
-  align-items:center;
+  align-items: center;
   font-size: 22px;
 }
 
@@ -101,7 +116,7 @@ ul {
   display: flex;
   align-items:center;
   font-size: 22px;
-  cursor:pointer;
+  cursor: pointer;
   padding-bottom: 15px;
 }
 
@@ -109,7 +124,45 @@ ul {
   max-width: 45px;
   max-height: auto;
   padding-right: 10px;
-  cursor:pointer;
+  cursor: pointer;
+}
+
+.selectorLeft {
+  max-width: 16px;
+  max-height: auto;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.selectorRight {
+  max-width: 16px;
+  max-height: auto;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.aiMenu {
+  font-size: 18px;
+}
+
+.turnTimerDiv {
+  font-size: 18px;
+}
+
+.turnWarnDiv {
+  font-size: 18px;
+}
+
+.iconSelect {
+  max-width: 40px;
+  max-height: auto;
+}
+
+.subHeader {
+  font-family: 'Righteous', sans-serif;
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 20px;
 }
 
 .marking-x {

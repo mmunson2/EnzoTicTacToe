@@ -5,7 +5,7 @@ import oIcon from "../assets/icon-o.png";
 import settingsIcon from "../assets/settings.png";
 
 class Menu extends React.Component {
-    render() {
+  render() {
         return (
             <div className="flexContainer">
               <div>
@@ -34,8 +34,8 @@ class Menu extends React.Component {
                     <span onClick={this.props.handleMenuClick}>Play with friends</span>  
                   </div>
                   <div className="menuSelect">
-                    <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Settings</span>  
+                    <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleSettingsClick}/>
+                    <span onClick={this.props.handleSettingsClick}>Settings</span>  
                   </div>
               </div>
             </div>
