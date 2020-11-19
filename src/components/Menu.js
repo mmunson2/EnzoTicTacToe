@@ -3,27 +3,16 @@ import leaderboard from "../assets/leaderboard.png";
 import xIcon from "../assets/icon-x.png";
 import oIcon from "../assets/icon-o.png";
 import settingsIcon from "../assets/settings.png";
+import User from "./User"
 
 class Menu extends React.Component {
     render() {
+      console.log("in Menu render");
         return (
             <div className="flexContainer">
-              <div>
-                    <div className="leadertext">
-                        <img src={leaderboard} alt="leaderboard" className="leaderimg"/>
-                        <span>Leaderboard</span>
-                    </div>
-                <ul>
-                  <b>
-                  <li>1. User1</li>
-                  <li>2. User2</li>
-                  <li>3. User3</li>
-                  <li>4. User4</li>
-                  <li>5. User5</li>
-                  <li>{this.props.username}: 100th</li>
-                  </b>
-                </ul>
-              </div>
+
+              <User username={this.props.username} userRanking={this.props.userRanking} />
+
               <div className="menu">
                   <div className="menuSelect">
                     <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>

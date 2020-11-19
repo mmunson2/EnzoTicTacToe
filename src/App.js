@@ -47,7 +47,7 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      userRanking: 0,
+      userRanking: 1,
       gotName: false,
       firstLoad: true
     };
@@ -249,10 +249,11 @@ class App extends React.Component {
       //checks its the component's first load
       //loads menu if it is
       } else if (this.state.firstLoad) {
+        console.log("in firstLoad");
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick} username={this.state.userName }/>
+            <Menu handleMenuClick={this.handleMenuClick} username={this.state.userName} userRanking={this.state.userRanking} />
         </div>
         );
 
