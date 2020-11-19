@@ -47,6 +47,8 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
+      userRanking: 0,
+      gotName: false,
       firstLoad: true
     };
 
@@ -56,6 +58,7 @@ class App extends React.Component {
     this.processBoard = this.processBoard.bind(this);
     this.makeAIMove = this.makeAIMove.bind(this);
     this._getScore = this._getScore.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
   }
@@ -194,11 +197,16 @@ class App extends React.Component {
     }
   }
 
+  handleChange(event) {
+    this.setState({userName: event.target.value});
+  }
+
   //placeholder for username submit
-  //currently just updates username state to placeholder 
+  //currently just updates username state to placeholder
   handleSubmit(event) {
     event.preventDefault();
-    this.setState({userName: "PlaceHolder"});
+    console.log('Setting the username');
+    this.setState({gotName: true});
   }
 
   // placeholder for menu click event
@@ -219,10 +227,10 @@ class App extends React.Component {
           active={this.state.active}
         />
       );
-      
+
       // checks if username is empty or not
       // render username page if empty
-      if (this.state.userName === "") {
+      if (!this.state.gotName) {
         return (
           <div>
             <Header />
@@ -230,21 +238,21 @@ class App extends React.Component {
                 <form>
                   <label htmlFor="username">Enter your username:</label>
                   <br/>
-                  <input type="text" id="username" name="username"></input>
+                  <input type="text" onChange={this.handleChange}></input>
                   <br/>
                   <button className="button" onClick={this.handleSubmit}>Submit</button>
                 </form>
               </div>
           </div>
         );
-      
+
       //checks its the component's first load
       //loads menu if it is
       } else if (this.state.firstLoad) {
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick}/>
+            <Menu handleMenuClick={this.handleMenuClick} username={this.state.userName }/>
         </div>
         );
 
@@ -263,7 +271,7 @@ class App extends React.Component {
                 <button className="button" href="#" onClick={this.handleReset}>Reset Game</button>
                 </div>
               </p>
-              
+
               <div className="board">{rows}</div>
               <br/>
               <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>

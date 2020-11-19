@@ -20,22 +20,22 @@ class Menu extends React.Component {
                   <li>3. User3</li>
                   <li>4. User4</li>
                   <li>5. User5</li>
-                  <li>You: 100th</li>
+                  <li>{this.props.username}: 100th</li>
                   </b>
                 </ul>
               </div>
               <div className="menu">
                   <div className="menuSelect">
                     <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Play Offline</span>  
+                    <span onClick={this.props.handleMenuClick}>Play Offline</span>
                   </div>
                   <div className="menuSelect">
                     <img src={oIcon} alt="o icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Play with friends</span>  
+                    <span onClick={this.props.handleMenuClick}>Play with friends</span>
                   </div>
                   <div className="menuSelect">
                     <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Settings</span>  
+                    <span onClick={this.props.handleMenuClick}>Settings</span>
                   </div>
               </div>
             </div>
