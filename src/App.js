@@ -47,7 +47,7 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      userRanking: 1,
+      userRanking: 0,
       gotName: false,
       firstLoad: true
     };
@@ -197,15 +197,15 @@ class App extends React.Component {
     }
   }
 
+  // Handles changes in the text form, updates state userName to user input
   handleChange(event) {
     this.setState({userName: event.target.value});
   }
 
-  //placeholder for username submit
-  //currently just updates username state to placeholder
+  // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
-    console.log('Setting the username');
+    // probably set the firebase username here name = this.state.userName
     this.setState({gotName: true});
   }
 
