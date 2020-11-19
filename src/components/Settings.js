@@ -130,7 +130,7 @@ class Settings extends React.Component {
                         <br/>
                         <div className="xSelect">
                             <img src={LessThan} alt="decrease" className="selectorLeft" onClick={this.handleXIconClick}/>
-                            <span><img src={this.state.xIcon} className="iconSelect"/></span>
+                            <span><img src={this.state.xIcon} alt="X Icon" className="iconSelect"/></span>
                             <img src={GreaterThan} alt="increase" className="selectorRight" onClick={this.handleXIconClick}/>
                         </div>
                     </div>
@@ -139,7 +139,7 @@ class Settings extends React.Component {
                         <br/>
                         <div className="oSelect">
                             <img src={LessThan} alt="decrease" className="selectorLeft" onClick={this.handleOIconClick}/>
-                            <span><img src={this.state.oIcon} className="iconSelect"/></span>
+                            <span><img src={this.state.oIcon} alt="O Icon" className="iconSelect"/></span>
                             <img src={GreaterThan} alt="increase" className="selectorRight" onClick={this.handleOIconClick}/>
                         </div>
                     </div>
