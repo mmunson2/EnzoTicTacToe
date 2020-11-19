@@ -48,7 +48,8 @@ class App extends Component {
       active: true,
       mode: "AI",
       userName: "",
-      firstLoad: true
+      firstLoad: true,
+      gameID: 0
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -61,15 +62,17 @@ class App extends Component {
     this.handleMenuClick = this.handleMenuClick.bind(this);
   }
 
-  componentDidMount() {
-   console.log("mounted!");
-   const boardRef = firebase.database().ref('board');
-   boardRef.on('value', (snapshot) => {
-     this.setState(snapshot.val(), () => {
-      this.processBoard();
-    });
-   });
-  }
+   componentDidMount() {
+      console.log("mounted!");
+      console.log(this.state.gameID);
+      const boardRef = firebase.database().ref('board');
+      boardRef.on('value', (snapshot) => {
+         this.setState({boardState: snapshot.val().boardState});
+         this.setState({turn: snapshot.val().turn}, () => {
+            this.processBoard();
+         });
+      });
+   }
 
   processBoard() {
      console.log("In processBoard");
@@ -258,7 +261,9 @@ class App extends Component {
   // currently just updates firstload state to false
   handleMenuClick(event) {
     event.preventDefault();
+    let dbRef = firebase.database().ref('board').push();
     this.setState({firstLoad: false});
+    this.setState({gameID: dbRef.key});
   }
 
   render() {
