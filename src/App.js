@@ -43,13 +43,15 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      boardState: new Array(9).fill(2),
-      turn: 0,
-      active: true,
-      mode: "AI",
+      game: {
+         boardState: new Array(9).fill(2),
+         turn: 0,
+         active: true,
+         mode: "AI",
+         ID: 0
+      },
       userName: "",
-      firstLoad: true,
-      gameID: 0
+      firstLoad: true
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -64,13 +66,14 @@ class App extends Component {
 
    componentDidMount() {
       console.log("mounted!");
-      console.log(this.state.gameID);
+      //console.log(this.state.gameID);
       const boardRef = firebase.database().ref('board');
       boardRef.on('value', (snapshot) => {
-         this.setState({boardState: snapshot.val().boardState});
-         this.setState({turn: snapshot.val().turn}, () => {
-            this.processBoard();
-         });
+         if(snapshot.val()!=null){
+            this.setState({game: snapshot.val()}, () => {
+               this.processBoard();
+            });
+         }  
       });
    }
 
@@ -78,10 +81,10 @@ class App extends Component {
      console.log("In processBoard");
     var won = false;
     patterns.forEach(pattern => {
-      var firstMark = this.state.boardState[pattern[0]];
+      var firstMark = this.state.game.boardState[pattern[0]];
 
       if (firstMark !== 2) {
-        var marks = this.state.boardState.filter((mark, index) => {
+        var marks = this.state.game.boardState.filter((mark, index) => {
           return pattern.includes(index) && mark === firstMark; //looks for marks matching the first in pattern's index
         });
 
@@ -93,7 +96,7 @@ class App extends Component {
             var id = index + "-" + firstMark;
             document.getElementById(id).parentNode.style.background = "#d4edda";
           });
-          var tempState = this.state;
+          var tempState = this.state.game;
           tempState.active = false;
           firebase.database().ref('board').set(tempState);
           //this.setState({ active: false });
@@ -102,14 +105,14 @@ class App extends Component {
       }
     });
 
-    if (!this.state.boardState.includes(2) && !won) {
+    if (!this.state.game.boardState.includes(2) && !won) {
       document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
       document.querySelector("#message2").style.display = "block";
-      var tempState = this.state;
+      var tempState = this.state.game;
       tempState.active = false;
       firebase.database().ref('board').set(tempState);
       //this.setState({ active: false });
-    } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
+    } else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
       this.makeAIMove();
     }
 
@@ -118,7 +121,7 @@ class App extends Component {
   makeAIMove() {
     var emptys = [];
     var scores = [];
-    this.state.boardState.forEach((mark, index) => {
+    this.state.game.boardState.forEach((mark, index) => {
       if (mark === 2) emptys.push(index);
     });
 
@@ -129,10 +132,10 @@ class App extends Component {
           var xCount = 0;
           var oCount = 0;
           pattern.forEach(p => {
-            if (this.state.boardState[p] === 0) xCount += 1;
-            else if (this.state.boardState[p] === 1) oCount += 1;
+            if (this.state.game.boardState[p] === 0) xCount += 1;
+            else if (this.state.game.boardState[p] === 1) oCount += 1;
 
-            score += p === index ? 0 : this._getScore(AIScore[this.state.boardState[p]]);
+            score += p === index ? 0 : this._getScore(AIScore[this.state.game.boardState[p]]);
 
           });
           if (xCount >= 2) score += this._getScore(10);
@@ -178,7 +181,7 @@ class App extends Component {
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
     
-      var tempState = this.state;
+      var tempState = this.state.game;
       tempState.boardState = new Array(9).fill(2);
       tempState.turn = 0;
       tempState.active = true;
@@ -201,14 +204,14 @@ class App extends Component {
   //     appened the rest of the array after id
   //  update firebase with new array
   handleNewMove(id) {
-   var tempState = this.state;
+   var tempState = this.state.game;
    
-   tempState.boardState = this.state.boardState.slice(0, id)
-      .concat(this.state.turn)
-      .concat(this.state.boardState.slice(id+1));
+   tempState.boardState = this.state.game.boardState.slice(0, id)
+      .concat(this.state.game.turn)
+      .concat(this.state.game.boardState.slice(id+1));
 
-   tempState.turn = (this.state.turn + 1) % 2;
-   console.log(this.state);
+   tempState.turn = (this.state.game.turn + 1) % 2;
+   console.log(this.state.game);
    
    firebase.database().ref('board').set(tempState);
 
@@ -232,7 +235,7 @@ class App extends Component {
 
   handleModeChange(e) {
     e.preventDefault();
-    var tempState = this.state;
+    var tempState = this.state.game;
     if (e.target.getAttribute("href").includes("AI")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#twop").style.background = "none";
@@ -262,8 +265,10 @@ class App extends Component {
   handleMenuClick(event) {
     event.preventDefault();
     let dbRef = firebase.database().ref('board').push();
+    let temp = this.state.game;
+    temp.ID = dbRef.key;
     this.setState({firstLoad: false});
-    this.setState({gameID: dbRef.key});
+    this.setState({game: temp});
   }
 
   render() {
@@ -272,9 +277,9 @@ class App extends Component {
       rows.push(
         <Row
           row={i}
-          boardState={this.state.boardState}
+          boardState={this.state.game.boardState}
           onNewMove={this.handleNewMove}
-          active={this.state.active}
+          active={this.state.game.active}
         />
       );
       
@@ -324,7 +329,7 @@ class App extends Component {
               
               <div className="board">{rows}</div>
               <br/>
-              <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
+              <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.game.turn][1])}</b></p>
               <p className="alert alert-success" role="alert" id="message1"></p>
               <p className="alert alert-info" role="alert" id="message2"></p>
             </div>
