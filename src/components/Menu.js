@@ -3,39 +3,27 @@ import leaderboard from "../assets/leaderboard.png";
 import xIcon from "../assets/icon-x.png";
 import oIcon from "../assets/icon-o.png";
 import settingsIcon from "../assets/settings.png";
+import User from "./User"
 
 class Menu extends React.Component {
   render() {
         return (
             <div className="flexContainer">
-              <div>
-                    <div className="leadertext">
-                        <img src={leaderboard} alt="leaderboard" className="leaderimg"/>
-                        <span>Leaderboard</span>
-                    </div>
-                <ul>
-                  <b>
-                  <li>1. User1</li>
-                  <li>2. User2</li>
-                  <li>3. User3</li>
-                  <li>4. User4</li>
-                  <li>5. User5</li>
-                  <li>You: 100th</li>
-                  </b>
-                </ul>
-              </div>
+
+              <User username={this.props.username} userRanking={this.props.userRanking} />
+
               <div className="menu">
                   <div className="menuSelect">
                     <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Play Offline</span>  
+                    <span onClick={this.props.handleMenuClick}>Play Offline</span>
                   </div>
                   <div className="menuSelect">
                     <img src={oIcon} alt="o icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Play with friends</span>  
+                    <span onClick={this.props.handleMenuClick}>Play with friends</span>
                   </div>
                   <div className="menuSelect">
                     <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleSettingsClick}/>
-                    <span onClick={this.props.handleSettingsClick}>Settings</span>  
+                    <span onClick={this.props.handleSettingsClick}>Settings</span>
                   </div>
               </div>
             </div>

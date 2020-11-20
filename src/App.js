@@ -48,8 +48,10 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      firstLoad: true,
       enterSettings: false
+      userRanking: 0,
+      gotName: false,
+      firstLoad: true
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -58,6 +60,7 @@ class App extends React.Component {
     this.processBoard = this.processBoard.bind(this);
     this.makeAIMove = this.makeAIMove.bind(this);
     this._getScore = this._getScore.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -197,11 +200,16 @@ class App extends React.Component {
     }
   }
 
-  //placeholder for username submit
-  //currently just updates username state to placeholder 
+  // Handles changes in the text form, updates state userName to user input
+  handleChange(event) {
+    this.setState({userName: event.target.value});
+  }
+
+  // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
-    this.setState({userName: "PlaceHolder"});
+    // probably set the firebase username here name = this.state.userName
+    this.setState({gotName: true});
   }
 
   // placeholder for menu click event
@@ -228,10 +236,10 @@ class App extends React.Component {
           active={this.state.active}
         />
       );
-      
+
       // checks if username is empty or not
       // render username page if empty
-      if (this.state.userName === "") {
+      if (!this.state.gotName) {
         return (
           <div>
             <Header />
@@ -239,21 +247,21 @@ class App extends React.Component {
                 <form>
                   <label htmlFor="username">Enter your username:</label>
                   <br/>
-                  <input type="text" id="username" name="username"></input>
+                  <input type="text" onChange={this.handleChange}></input>
                   <br/>
                   <button className="button" onClick={this.handleSubmit}>Submit</button>
                 </form>
               </div>
           </div>
         );
-      
-      //checks if its the component's first load
+
+      //checks its the component's first load
       //loads menu if it is
       } else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick} handleSettingsClick={this.handleSettingsClick}/>
+            <Menu handleMenuClick={this.handleMenuClick} handleSettingsClick={this.handleSettingsClick} username={this.state.userName} userRanking={this.state.userRanking} />
         </div>
         );
 
@@ -279,7 +287,7 @@ class App extends React.Component {
                 <button className="button" href="#" onClick={this.handleReset}>Reset Game</button>
                 </div>
               </p>
-              
+
               <div className="board">{rows}</div>
               <br/>
               <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
