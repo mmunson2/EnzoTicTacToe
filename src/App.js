@@ -1,5 +1,3 @@
-
-
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./components/Row";
@@ -7,6 +5,8 @@ import "./App.css";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
+
+import Countdown from 'react-countdown';
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -49,7 +49,8 @@ class App extends React.Component {
       mode: "AI",
       userName: "",
       firstLoad: true,
-      enterSettings: false
+      enterSettings: false,
+      timer: 30000
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -285,6 +286,13 @@ class App extends React.Component {
               <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
               <p className="alert alert-success" role="alert" id="message1"></p>
               <p className="alert alert-info" role="alert" id="message2"></p>
+            </div>
+            <div className="countdown">
+              <Countdown 
+              date={Date.now() + this.state.timer } 
+              zeroPadTime = {-1}
+              
+              />
             </div>
           </div>
         );
