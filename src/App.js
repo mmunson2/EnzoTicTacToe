@@ -292,8 +292,8 @@ class App extends Component {
   }
 
   // handles component switch to settings component when menu selected
-  handleSettingsClick(event) {
-    event.preventDefault();
+  handleSettingsClick() {
+    //event.preventDefault();
     this.setState({enterSettings: !this.state.enterSettings});
   }
 

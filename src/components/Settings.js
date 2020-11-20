@@ -120,6 +120,7 @@ class Settings extends React.Component {
     applyTrigger = (event) => {
         // divides int difficulty to match formatting in App component
         this.props.handleAiDiff(this.state.aiDifficulty / 10);
+        this.props.handleSettingsClick();
         event.preventDefault();
     }
 
