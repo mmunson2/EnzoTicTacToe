@@ -26,6 +26,7 @@ class Settings extends React.Component {
         this.handleTimerIncrease = this.handleTimerIncrease.bind(this);
         this.handleXIconClick = this.handleXIconClick.bind(this);
         this.handleOIconClick = this.handleOIconClick.bind(this);
+        this.applyTrigger = this.applyTrigger.bind(this);
     }
 
     
@@ -115,6 +116,13 @@ class Settings extends React.Component {
         });
     }
 
+    // trigger for passing settings state information to App component
+    applyTrigger = (event) => {
+        // divides int difficulty to match formatting in App component
+        this.props.handleAiDiff(this.state.aiDifficulty / 10);
+        event.preventDefault();
+    }
+
     render() {
         return (
             <>
@@ -176,7 +184,7 @@ class Settings extends React.Component {
                 </div>
             </div>
             <div className="setButtons">
-                <button className="button">Apply</button>
+                <button className="button" onClick={this.applyTrigger}>Apply</button>
                 <button className="button" onClick={this.props.handleSettingsClick}>Cancel</button>
             </div>
             </>

@@ -38,7 +38,7 @@ var AIScore = { 2: 1,   //Empty given a score of 1
 
 //This is the primary means of setting difficulty, must be between 0 and 1
 //Suggested: Easy=0.6 Medium=0.4, Hard=0.2
-var mistakeProbability = 0.4;
+//var mistakeProbability = 0.4;
 
 
 class App extends Component {
@@ -50,7 +50,8 @@ class App extends Component {
          turn: 0,
          active: true,
          mode: "AI",
-         ID: 0
+         ID: 0,
+         mistakeProbability: 0.4
       },
       userName: "",
       enterSettings: false,
@@ -70,6 +71,7 @@ class App extends Component {
     this.handleMenuClick = this.handleMenuClick.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
     this.startFirebase = this.startFirebase.bind(this);
+    this.handleAiDiff = this.handleAiDiff.bind(this);
   }
 
 
@@ -172,7 +174,7 @@ class App extends Component {
 //"Mistakes" will bias the score += 5
   _getScore(score) {
     //Check if AI should make a mistake
-    if(Math.random() < mistakeProbability)
+    if(Math.random() < this.state.game.mistakeProbability)
     {
         if(Math.random() > 0.5)
         {
@@ -295,6 +297,15 @@ class App extends Component {
     this.setState({enterSettings: !this.state.enterSettings});
   }
 
+  // handles changing AI difficulty
+  // takes data from settings child component and updates state
+  handleAiDiff = (childData) => {
+    let gameState = this.state.game;
+    gameState.mistakeProbability = childData;
+    this.setState({game: gameState});
+    console.log(this.state.game.mistakeProbability);
+  }
+
   render() {
     // populates rows using current board state
     const rows = [];
@@ -341,7 +352,7 @@ class App extends Component {
     else if (this.state.enterSettings) {
         return (
           <div>
-            <Settings handleSettingsClick={this.handleSettingsClick}/>
+            <Settings handleAiDiff={this.handleAiDiff} handleSettingsClick={this.handleSettingsClick}/>
           </div>
         )
 
