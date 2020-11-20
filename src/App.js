@@ -47,7 +47,7 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      userRanking: 0,
+      userRanking: 1,
       gotName: false,
       firstLoad: true
     };
@@ -235,12 +235,12 @@ class App extends React.Component {
           <div>
             <Header />
               <div className="usernamediv">
-                <form>
+                <form onSubmit={this.handleSubmit} >
                   <label htmlFor="username">Enter your username:</label>
                   <br/>
                   <input type="text" onChange={this.handleChange}></input>
                   <br/>
-                  <button className="button" onClick={this.handleSubmit}>Submit</button>
+                  <button className="button">Submit</button>
                 </form>
               </div>
           </div>

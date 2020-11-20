@@ -24,9 +24,5 @@ class User extends React.Component {
       );
 
   }
-
-  calculateRanking() {
-
-  }
 }
 export default User;
