@@ -351,7 +351,7 @@ class App extends Component {
       return (
         <Board
           symbolsMap = {symbolsMap}
-          turn = {this.state.turn}
+          turn = {this.state.game.turn}
           rows = {rows}
           handleModeChange = {(event) => this.handleModeChange(event)}
           handleReset = {(event) => this.handleReset(event)}
