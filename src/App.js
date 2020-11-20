@@ -293,7 +293,6 @@ class App extends Component {
 
   // handles component switch to settings component when menu selected
   handleSettingsClick() {
-    //event.preventDefault();
     this.setState({enterSettings: !this.state.enterSettings});
   }
 
@@ -303,7 +302,7 @@ class App extends Component {
     let gameState = this.state.game;
     gameState.mistakeProbability = childData;
     this.setState({game: gameState});
-    console.log(this.state.game.mistakeProbability);
+    //console.log(this.state.game.mistakeProbability);
   }
 
   render() {
