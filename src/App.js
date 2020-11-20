@@ -7,6 +7,7 @@ import "./App.css";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
+import Board from "./components/Board";
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -226,8 +227,9 @@ class App extends React.Component {
   }
 
   render() {
+    // populates rows using current board state
     const rows = [];
-    for (var i = 0; i < 3; i++)
+    for (var i = 0; i < 3; i++) {
       rows.push(
         <Row
           row={i}
@@ -273,30 +275,19 @@ class App extends React.Component {
           </div>
         )
 
-      } else {
-
-        return (
-          <div>
-            <Header />
-            <div className="container jumbotron" id="container">
-              <p>
-                <div>Select Mode:</div>
-                <button className="button" href="./?AI" onClick={this.handleModeChange} id="ai">Versus AI</button>
-                <button className="button" href="./?2P" onClick={this.handleModeChange} id="twop">2 Player</button>
-                <div className="reset">
-                <button className="button" href="#" onClick={this.handleReset}>Reset Game</button>
-                </div>
-              </p>
-
-              <div className="board">{rows}</div>
-              <br/>
-              <p>Next Player: <b>{String.fromCharCode(symbolsMap[this.state.turn][1])}</b></p>
-              <p className="alert alert-success" role="alert" id="message1"></p>
-              <p className="alert alert-info" role="alert" id="message2"></p>
-            </div>
-          </div>
-        );
-      }
+      }    
+    // loads game board and functionality
+    else {
+      return (
+        <Board
+          symbolsMap = {symbolsMap}
+          turn = {this.state.turn}
+          rows = {rows}
+          handleModeChange = {(event) => this.handleModeChange(event)}
+          handleReset = {(event) => this.handleReset(event)}
+        />
+      )
+    }
   }
 }
 
