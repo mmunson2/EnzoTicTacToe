@@ -359,6 +359,8 @@ class App extends Component {
     // loads game board and functionality
     else {
       return (
+        <>
+        <Header />
         <Board
           symbolsMap = {symbolsMap}
           turn = {this.state.game.turn}
@@ -366,6 +368,7 @@ class App extends Component {
           handleModeChange = {(event) => this.handleModeChange(event)}
           handleReset = {(event) => this.handleReset(event)}
         />
+        </>
       )
     }
   }
