@@ -238,7 +238,7 @@ class App extends React.Component {
           active={this.state.active}
         />
       );
-
+      }
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -268,14 +268,15 @@ class App extends React.Component {
         );
 
       // loads game board and functionality
-      } else if (this.state.enterSettings) {
+      }
+    else if (this.state.enterSettings) {
         return (
           <div>
             <Settings handleSettingsClick={this.handleSettingsClick}/>
           </div>
         )
 
-      }    
+      }
     // loads game board and functionality
     else {
       return (
@@ -290,5 +291,6 @@ class App extends React.Component {
     }
   }
 }
+
 
 export default App;
