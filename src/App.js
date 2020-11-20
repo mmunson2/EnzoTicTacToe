@@ -62,12 +62,17 @@ class App extends Component {
     this._getScore = this._getScore.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.startFirebase = this.startFirebase.bind(this);
   }
 
-   componentDidMount() {
+
+   /*
+   Function starts the firebase listening at the game ID branch of the database
+   */
+   startFirebase() {
       console.log("mounted!");
       //console.log(this.state.gameID);
-      const boardRef = firebase.database().ref('board');
+      const boardRef = firebase.database().ref(`board/${this.state.game.ID}`);
       boardRef.on('value', (snapshot) => {
          if(snapshot.val()!=null){
             this.setState({game: snapshot.val()}, () => {
@@ -98,7 +103,7 @@ class App extends Component {
           });
           var tempState = this.state.game;
           tempState.active = false;
-          firebase.database().ref('board').set(tempState);
+          firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
           //this.setState({ active: false });
           won = true;
         }
@@ -110,7 +115,7 @@ class App extends Component {
       document.querySelector("#message2").style.display = "block";
       var tempState = this.state.game;
       tempState.active = false;
-      firebase.database().ref('board').set(tempState);
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
       //this.setState({ active: false });
     } else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
       this.makeAIMove();
@@ -186,7 +191,7 @@ class App extends Component {
       tempState.turn = 0;
       tempState.active = true;
 
-      firebase.database().ref('board').set(tempState);
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
     
     /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
       this.setState({
@@ -213,7 +218,7 @@ class App extends Component {
    tempState.turn = (this.state.game.turn + 1) % 2;
    console.log(this.state.game);
    
-   firebase.database().ref('board').set(tempState);
+   firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
 
   /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
    this.setState(
@@ -248,7 +253,7 @@ class App extends Component {
       document.querySelector("#ai").style.background = "none";
       //this.setState({ mode: "2P" });
       tempState.mode = "2P";
-      firebase.database().ref('board').set(tempState);
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
       this.handleReset(null);
     }
   }
@@ -269,6 +274,7 @@ class App extends Component {
     temp.ID = dbRef.key;
     this.setState({firstLoad: false});
     this.setState({game: temp});
+    this.startFirebase();
   }
 
   render() {
