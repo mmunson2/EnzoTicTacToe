@@ -48,7 +48,7 @@ class App extends React.Component {
       active: true,
       mode: "AI",
       userName: "",
-      enterSettings: false
+      enterSettings: false,
       userRanking: 0,
       gotName: false,
       firstLoad: true
