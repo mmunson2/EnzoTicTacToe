@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./components/Row";
 import "./App.css";
+import firebase from './firebase.js';
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
@@ -40,14 +41,17 @@ var AIScore = { 2: 1,   //Empty given a score of 1
 var mistakeProbability = 0.4;
 
 
-class App extends React.Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      boardState: new Array(9).fill(2),
-      turn: 0,
-      active: true,
-      mode: "AI",
+      game: {
+         boardState: new Array(9).fill(2),
+         turn: 0,
+         active: true,
+         mode: "AI",
+         ID: 0
+      },
       userName: "",
       enterSettings: false,
       userRanking: 0,
@@ -65,15 +69,34 @@ class App extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
+    this.startFirebase = this.startFirebase.bind(this);
   }
 
+
+   /*
+   Function starts the firebase listening at the game ID branch of the database
+   */
+   startFirebase() {
+      console.log("mounted!");
+      //console.log(this.state.gameID);
+      const boardRef = firebase.database().ref(`board/${this.state.game.ID}`);
+      boardRef.on('value', (snapshot) => {
+         if(snapshot.val()!=null){
+            this.setState({game: snapshot.val()}, () => {
+               this.processBoard();
+            });
+         }
+      });
+   }
+
   processBoard() {
+     console.log("In processBoard");
     var won = false;
     patterns.forEach(pattern => {
-      var firstMark = this.state.boardState[pattern[0]];
+      var firstMark = this.state.game.boardState[pattern[0]];
 
       if (firstMark !== 2) {
-        var marks = this.state.boardState.filter((mark, index) => {
+        var marks = this.state.game.boardState.filter((mark, index) => {
           return pattern.includes(index) && mark === firstMark; //looks for marks matching the first in pattern's index
         });
 
@@ -85,25 +108,32 @@ class App extends React.Component {
             var id = index + "-" + firstMark;
             document.getElementById(id).parentNode.style.background = "#d4edda";
           });
-          this.setState({ active: false });
+          var tempState = this.state.game;
+          tempState.active = false;
+          firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
+          //this.setState({ active: false });
           won = true;
         }
       }
     });
 
-    if (!this.state.boardState.includes(2) && !won) {
+    if (!this.state.game.boardState.includes(2) && !won) {
       document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
       document.querySelector("#message2").style.display = "block";
-      this.setState({ active: false });
-    } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
+      var tempState = this.state.game;
+      tempState.active = false;
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
+      //this.setState({ active: false });
+    } else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
       this.makeAIMove();
     }
+
   }
 
   makeAIMove() {
     var emptys = [];
     var scores = [];
-    this.state.boardState.forEach((mark, index) => {
+    this.state.game.boardState.forEach((mark, index) => {
       if (mark === 2) emptys.push(index);
     });
 
@@ -114,10 +144,10 @@ class App extends React.Component {
           var xCount = 0;
           var oCount = 0;
           pattern.forEach(p => {
-            if (this.state.boardState[p] === 0) xCount += 1;
-            else if (this.state.boardState[p] === 1) oCount += 1;
+            if (this.state.game.boardState[p] === 0) xCount += 1;
+            else if (this.state.game.boardState[p] === 1) oCount += 1;
 
-            score += p === index ? 0 : this._getScore(AIScore[this.state.boardState[p]]);
+            score += p === index ? 0 : this._getScore(AIScore[this.state.game.boardState[p]]);
 
           });
           if (xCount >= 2) score += this._getScore(10);
@@ -162,15 +192,43 @@ class App extends React.Component {
     document
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
-    this.setState({
+
+      var tempState = this.state.game;
+      tempState.boardState = new Array(9).fill(2);
+      tempState.turn = 0;
+      tempState.active = true;
+
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
+
+    /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
+      this.setState({
       boardState: new Array(9).fill(2),
       turn: 0,
       active: true
     });
+    */
   }
 
+  //updates the board with newest move and flips the "turn" to the other player
+  //  create new board state
+  //     slice the board array upto the id the move is made in
+  //     add the "turn" to that element
+  //     appened the rest of the array after id
+  //  update firebase with new array
   handleNewMove(id) {
-    this.setState(
+   var tempState = this.state.game;
+
+   tempState.boardState = this.state.game.boardState.slice(0, id)
+      .concat(this.state.game.turn)
+      .concat(this.state.game.boardState.slice(id+1));
+
+   tempState.turn = (this.state.game.turn + 1) % 2;
+   console.log(this.state.game);
+
+   firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
+
+  /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
+   this.setState(
       prevState => {
         return {
           boardState: prevState.boardState
@@ -184,19 +242,25 @@ class App extends React.Component {
         this.processBoard();
       }
     );
+    */
   }
 
   handleModeChange(e) {
     e.preventDefault();
+    var tempState = this.state.game;
     if (e.target.getAttribute("href").includes("AI")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#twop").style.background = "none";
-      this.setState({ mode: "AI" });
+      //this.setState({ mode: "AI" });
+      tempState.mode = "AI";
+      firebase.database().ref('board').set(tempState);
       this.handleReset(null);
     } else if (e.target.getAttribute("href").includes("2P")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#ai").style.background = "none";
-      this.setState({ mode: "2P" });
+      //this.setState({ mode: "2P" });
+      tempState.mode = "2P";
+      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
       this.handleReset(null);
     }
   }
@@ -217,7 +281,12 @@ class App extends React.Component {
   // currently just updates firstload state to false
   handleMenuClick(event) {
     event.preventDefault();
+    let dbRef = firebase.database().ref('board').push();
+    let temp = this.state.game;
+    temp.ID = dbRef.key;
     this.setState({firstLoad: false});
+    this.setState({game: temp});
+    this.startFirebase();
   }
 
   // handles component switch to settings component when menu selected
@@ -233,9 +302,9 @@ class App extends React.Component {
       rows.push(
         <Row
           row={i}
-          boardState={this.state.boardState}
+          boardState={this.state.game.boardState}
           onNewMove={this.handleNewMove}
-          active={this.state.active}
+          active={this.state.game.active}
         />
       );
       }
