@@ -12,6 +12,7 @@ class Board extends React.Component {
             <button className="button" href="./?2P" onClick={this.props.handleModeChange} id="twop">2 Player</button>
             <div className="reset">
             <button className="button" href="#" onClick={this.props.handleReset}>Reset Game</button>
+            <button className="button" onClick={this.props.handleBackToMenu}>Back to Menu</button>
             </div>
           </p>
           

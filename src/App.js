@@ -72,6 +72,7 @@ class App extends Component {
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
     this.startFirebase = this.startFirebase.bind(this);
     this.handleAiDiff = this.handleAiDiff.bind(this);
+    this.handleBackToMenu = this.handleBackToMenu.bind(this);
   }
 
 
@@ -305,6 +306,12 @@ class App extends Component {
     //console.log(this.state.game.mistakeProbability);
   }
 
+  //placeholder for game to menu transition
+  //may need additional game logic for player leaving game
+  handleBackToMenu() {
+    this.setState({firstLoad: true});
+  }
+
   render() {
     // populates rows using current board state
     const rows = [];
@@ -374,6 +381,7 @@ class App extends Component {
           rows = {rows}
           handleModeChange = {(event) => this.handleModeChange(event)}
           handleReset = {(event) => this.handleReset(event)}
+          handleBackToMenu = {this.handleBackToMenu}
         />
         </>
       )
