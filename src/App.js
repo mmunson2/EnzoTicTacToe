@@ -298,9 +298,9 @@ class App extends Component {
 
   // handles changing AI difficulty
   // takes data from settings child component and updates state
-  handleAiDiff = (childData) => {
+  handleAiDiff = (updatedProbability) => {
     let gameState = this.state.game;
-    gameState.mistakeProbability = childData;
+    gameState.mistakeProbability = updatedProbability;
     this.setState({game: gameState});
     //console.log(this.state.game.mistakeProbability);
   }
@@ -317,7 +317,7 @@ class App extends Component {
           active={this.state.game.active}
         />
       );
-      }
+    }
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -342,20 +342,27 @@ class App extends Component {
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick} handleSettingsClick={this.handleSettingsClick} username={this.state.userName} userRanking={this.state.userRanking} />
+            <Menu 
+            handleMenuClick={this.handleMenuClick} 
+            handleSettingsClick={this.handleSettingsClick} 
+            username={this.state.userName} 
+            userRanking={this.state.userRanking} 
+            />
         </div>
         );
 
       // loads game board and functionality
-      }
+    }
     else if (this.state.enterSettings) {
-        return (
-          <div>
-            <Settings handleAiDiff={this.handleAiDiff} handleSettingsClick={this.handleSettingsClick}/>
-          </div>
-        )
-
-      }
+      return (
+        <div>
+          <Settings 
+          handleAiDiff={this.handleAiDiff} 
+          handleSettingsClick={this.handleSettingsClick}
+          />
+        </div>
+      )
+    }
     // loads game board and functionality
     else {
       return (
