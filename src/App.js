@@ -57,7 +57,8 @@ class App extends Component {
       enterSettings: false,
       userRanking: 0,
       gotName: false,
-      firstLoad: true
+      firstLoad: true,
+      singlePlayer: false
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -369,6 +370,8 @@ class App extends Component {
         <>
         <Header />
         <Board
+          singlePlayer = {this.state.singlePlayer}
+          ID = {this.state.game.ID}
           symbolsMap = {symbolsMap}
           turn = {this.state.game.turn}
           rows = {rows}
