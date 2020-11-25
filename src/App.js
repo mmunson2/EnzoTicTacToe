@@ -275,7 +275,7 @@ class App extends Component {
     event.preventDefault();
     var usernameExists = true;
     firebase.database().ref(`users/${this.state.userName}/username`).once("value", snapshot => {
-      // If the username does not exist in firebase, add it.
+      // If the username does not exist in fire
       if (!snapshot.exists()) {
         var userName = this.state.userName;
         var userRanking = this.state.userRanking;
