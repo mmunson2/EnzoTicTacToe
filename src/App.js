@@ -75,6 +75,7 @@ class App extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.handleMenuClickMultiplayer = this.handleMenuClickMultiplayer.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
     this.startFirebase = this.startFirebase.bind(this);
     this.handleAiDiff = this.handleAiDiff.bind(this);
@@ -316,6 +317,18 @@ class App extends Component {
   // placeholder for menu click event
   // currently just updates firstload state to false
   handleMenuClick(event) {
+    this.setState({singlePlayer: true});
+    event.preventDefault();
+    let dbRef = firebase.database().ref('board').push();
+    let temp = this.state.game;
+    temp.ID = dbRef.key;
+    this.setState({firstLoad: false});
+    this.setState({game: temp});
+    this.startFirebase();
+  }
+
+  handleMenuClickMultiplayer(event) {
+    this.setState({singlePlayer: false});
     event.preventDefault();
     let dbRef = firebase.database().ref('board').push();
     let temp = this.state.game;
@@ -435,11 +448,12 @@ class App extends Component {
         return (
           <div>
             <Header />
-            <Menu
-            handleMenuClick={this.handleMenuClick}
-            handleSettingsClick={this.handleSettingsClick}
-            username={this.state.userName}
-            userRanking={this.state.userRanking}
+            <Menu 
+            handleMenuClick={this.handleMenuClick} 
+            handleMenuClickMultiplayer={this.handleMenuClickMultiplayer}
+            handleSettingsClick={this.handleSettingsClick} 
+            username={this.state.userName} 
+            userRanking={this.state.userRanking} 
             />
         </div>
         );
