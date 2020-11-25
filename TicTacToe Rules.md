@@ -21,9 +21,7 @@ TIC TAC TOE Rules:
 (Single player mode:
 
 
-
 AI mode:
-
 
 
 Multi player mode:)
