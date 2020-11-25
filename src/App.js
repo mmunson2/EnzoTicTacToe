@@ -62,7 +62,8 @@ class App extends Component {
       firstLoad: true,
       timer: 30000,
       turnWarn: 20000,
-      timerEnd: false
+      timerEnd: false,
+      singlePlayer: false
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -206,13 +207,13 @@ class App extends Component {
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
     //document.querySelector("#message1").style.display = "none";
-      
+
 
       var tempState = this.state.game;
       tempState.boardState = new Array(9).fill(2);
       tempState.turn = 0;
       tempState.active = true;
-      
+
       this.setState({timerEnd: false});
 
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
@@ -349,7 +350,7 @@ class App extends Component {
     this.setState({firstLoad: true});
   }
 
-  //custom renderer passed to countdown to conditionally 
+  //custom renderer passed to countdown to conditionally
   //render countdown component
   renderTimer = ({minutes, seconds, completed}) => {
     //if timer runs out before a normal game ending
@@ -369,7 +370,7 @@ class App extends Component {
       //updates game state
       this.handleTimerEnd();
       return <span>Times Up!</span>;
-    } 
+    }
     else {
       if (this.state.timerEnd) {
         return <span>Times Up!</span>
@@ -434,11 +435,11 @@ class App extends Component {
         return (
           <div>
             <Header />
-            <Menu 
-            handleMenuClick={this.handleMenuClick} 
-            handleSettingsClick={this.handleSettingsClick} 
-            username={this.state.userName} 
-            userRanking={this.state.userRanking} 
+            <Menu
+            handleMenuClick={this.handleMenuClick}
+            handleSettingsClick={this.handleSettingsClick}
+            username={this.state.userName}
+            userRanking={this.state.userRanking}
             />
         </div>
         );
@@ -448,8 +449,8 @@ class App extends Component {
     else if (this.state.enterSettings) {
       return (
         <div>
-          <Settings 
-          handleAiDiff={this.handleAiDiff} 
+          <Settings
+          handleAiDiff={this.handleAiDiff}
           handleTimerUpdate={this.handleTimerUpdate}
           handleSettingsClick={this.handleSettingsClick}
           />
@@ -462,6 +463,8 @@ class App extends Component {
         <>
         <Header />
         <Board
+          singlePlayer = {this.state.singlePlayer}
+          ID = {this.state.game.ID}
           symbolsMap = {symbolsMap}
           turn = {this.state.game.turn}
           rows = {rows}
@@ -471,7 +474,7 @@ class App extends Component {
         />
         <div className="countdown">
           <div className="timerText">Turn Timer:</div>
-          <Countdown 
+          <Countdown
             date={Date.now() + this.state.timer}
             renderer={this.renderTimer}
             ref={this.handleSet}
