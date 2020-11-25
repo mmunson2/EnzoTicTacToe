@@ -5,7 +5,7 @@ import Countdown from 'react-countdown';
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./components/Row";
 import "./App.css";
-import firebase from './firebase.js';
+import firebase from './firebase';
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
@@ -295,7 +295,20 @@ class App extends Component {
   // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
-    // probably set the firebase username here name = this.state.userName
+    var usernameExists = true;
+    firebase.database().ref(`users/${this.state.userName}/username`).once("value", snapshot => {
+      // If the username does not exist in firebase, add it.
+      if (!snapshot.exists()) {
+        var userName = this.state.userName;
+        var userRanking = this.state.userRanking;
+        firebase.database().ref(`users/${this.state.userName}`)
+          .set({
+            username: userName,
+            ranking: userRanking
+          });
+      }
+    });
+
     this.setState({gotName: true});
   }
 
