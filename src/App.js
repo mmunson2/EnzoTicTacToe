@@ -32,7 +32,6 @@ var patterns = [
 ];
 
 //Weights to determine how the AI scores a square containing:
-
 var AIScore = { 2: 1,   //Empty given a score of 1
                 0: 2,   //Player given a score of 2
                 1: 0 }; //AI given a score of 0
@@ -87,25 +86,21 @@ class App extends Component {
     this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
   }
 
-
-   /*
-   Function starts the firebase listening at the game ID branch of the database
-   */
-   startFirebase() {
-      console.log("mounted!");
-      //console.log(this.state.gameID);
-      const boardRef = firebase.database().ref(`board/${this.state.game.ID}`);
-      boardRef.on('value', (snapshot) => {
-         if(snapshot.val()!=null){
-            this.setState({game: snapshot.val()}, () => {
-               this.processBoard();
-            });
-         }
-      });
-   }
+  // Function starts the firebase listening at the game ID branch of the database
+  startFirebase() {
+    console.log("mounted!");
+    const boardRef = firebase.database().ref(`board/${this.state.game.ID}`);
+    boardRef.on('value', (snapshot) => {
+        if(snapshot.val()!=null){
+          this.setState({game: snapshot.val()}, () => {
+              this.processBoard();
+          });
+        }
+    });
+  }
 
   processBoard() {
-     console.log("In processBoard");
+    console.log("In processBoard");
     var won = false;
     patterns.forEach(pattern => {
       var firstMark = this.state.game.boardState[pattern[0]];
@@ -126,7 +121,6 @@ class App extends Component {
           var tempState = this.state.game;
           tempState.active = false;
           firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-          //this.setState({ active: false });
           won = true;
         }
       }
@@ -138,11 +132,10 @@ class App extends Component {
       var tempState = this.state.game;
       tempState.active = false;
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-      //this.setState({ active: false });
-    } else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
+    } 
+    else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
       this.makeAIMove();
     }
-
   }
 
   makeAIMove() {
@@ -161,9 +154,7 @@ class App extends Component {
           pattern.forEach(p => {
             if (this.state.game.boardState[p] === 0) xCount += 1;
             else if (this.state.game.boardState[p] === 1) oCount += 1;
-
             score += p === index ? 0 : this._getScore(AIScore[this.state.game.boardState[p]]);
-
           });
           if (xCount >= 2) score += this._getScore(10);
           if (oCount >= 2) score += this._getScore(20);
@@ -187,18 +178,14 @@ class App extends Component {
 //"Mistakes" will bias the score += 5
   _getScore(score) {
     //Check if AI should make a mistake
-    if(Math.random() < this.state.game.mistakeProbability)
-    {
-        if(Math.random() > 0.5)
-        {
-            score += Math.round(Math.random() * 5);
-        }
-        else
-        {
-            score -= Math.round(Math.random() * 5);
-        }
+    if(Math.random() < this.state.game.mistakeProbability) {
+      if(Math.random() > 0.5) {
+        score += Math.round(Math.random() * 5);
+      }
+      else {
+        score -= Math.round(Math.random() * 5);
+      }
     }
-
     return score;
   }
 
@@ -207,8 +194,6 @@ class App extends Component {
     document
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
-    //document.querySelector("#message1").style.display = "none";
-
 
       var tempState = this.state.game;
       tempState.boardState = new Array(9).fill(2);
@@ -218,17 +203,6 @@ class App extends Component {
       this.setState({timerEnd: false});
 
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-
-      //this.setState({timer: this.state.timer});
-      //this.start();
-
-    /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
-      this.setState({
-      boardState: new Array(9).fill(2),
-      turn: 0,
-      active: true
-    });
-    */
   }
 
   //updates the board with newest move and flips the "turn" to the other player
@@ -238,7 +212,6 @@ class App extends Component {
   //     appened the rest of the array after id
   //  update firebase with new array
   handleNewMove(id) {
-    //this.start();
    var tempState = this.state.game;
 
    tempState.boardState = this.state.game.boardState.slice(0, id)
@@ -249,23 +222,6 @@ class App extends Component {
    console.log(this.state.game);
 
    firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-
-  /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
-   this.setState(
-      prevState => {
-        return {
-          boardState: prevState.boardState
-            .slice(0, id)
-            .concat(prevState.turn)
-            .concat(prevState.boardState.slice(id + 1)),
-          turn: (prevState.turn + 1) % 2
-        };
-      },
-      () => {
-        this.processBoard();
-      }
-    );
-    */
    this.start();
   }
 
@@ -275,14 +231,13 @@ class App extends Component {
     if (e.target.getAttribute("href").includes("AI")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#twop").style.background = "none";
-      //this.setState({ mode: "AI" });
       tempState.mode = "AI";
       firebase.database().ref('board').set(tempState);
       this.handleReset(null);
-    } else if (e.target.getAttribute("href").includes("2P")) {
+    }
+    else if (e.target.getAttribute("href").includes("2P")) {
       e.target.style.background = "#d4edda";
       document.querySelector("#ai").style.background = "none";
-      //this.setState({ mode: "2P" });
       tempState.mode = "2P";
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
       this.handleReset(null);
@@ -314,8 +269,6 @@ class App extends Component {
     this.setState({gotName: true});
   }
 
-  // placeholder for menu click event
-  // currently just updates firstload state to false
   handleMenuClick(event) {
     this.setState({singlePlayer: true});
     event.preventDefault();
@@ -373,7 +326,8 @@ class App extends Component {
       let winner = -1;
       if (this.state.game.turn === 0) {
         winner = 1;
-      } else {
+      } 
+      else {
         winner = 0;
       }
       //custom end message
@@ -387,7 +341,8 @@ class App extends Component {
     else {
       if (this.state.timerEnd) {
         return <span>Times Up!</span>
-      } else if (this.state.game.active === false) {
+      } 
+      else if (this.state.game.active === false) {
         return <span>Game Over!</span>
       }
       return <span>{minutes}:{seconds}</span>;
@@ -444,7 +399,8 @@ class App extends Component {
 
       //checks its the component's first load
       //loads menu if it is
-      } else if (this.state.firstLoad && this.state.enterSettings === false) {
+      } 
+      else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
@@ -500,6 +456,5 @@ class App extends Component {
     }
   }
 }
-
 
 export default App;
