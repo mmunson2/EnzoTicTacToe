@@ -32,6 +32,11 @@ class Board extends React.Component {
             <div id="game-ID">
             <p> Game ID: {this.props.ID} </p>
             </div>
+            <div className="reset">
+            <p>
+            <button className="button" href="#" onClick={this.props.handleReset}>Reset Game</button>
+            </p>
+            </div>
             
             <div className="board">{this.props.rows}</div>
             <br/>
