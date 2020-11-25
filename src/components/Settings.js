@@ -124,6 +124,8 @@ class Settings extends React.Component {
   applyTrigger = (event) => {
     // divides int difficulty to match formatting in App component
     this.props.handleAiDiff(this.state.aiDifficulty / 10);
+    // multiplies by 1000 to correctly set timer
+    this.props.handleTimerUpdate(this.state.turnTimer * 1000);
     this.props.handleSettingsClick();
     event.preventDefault();
   }

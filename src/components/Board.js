@@ -4,7 +4,7 @@ import Row from "./Row";
 class Board extends React.Component {
   render() {
     return (
-      <div>
+      <div className="outDiv">  
         <div className="container jumbotron" id="container">
           <p>
             <div>Select Mode:</div>
