@@ -1,10 +1,11 @@
 
 
 import React, { Component } from "react";
+import Countdown from 'react-countdown';
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./components/Row";
 import "./App.css";
-import firebase from './firebase.js';
+import firebase from './firebase';
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
@@ -42,6 +43,7 @@ var AIScore = { 2: 1,   //Empty given a score of 1
 
 
 class App extends Component {
+  timerRef = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -58,6 +60,9 @@ class App extends Component {
       userRanking: 0,
       gotName: false,
       firstLoad: true,
+      timer: 30000,
+      turnWarn: 20000,
+      timerEnd: false,
       singlePlayer: false
     };
 
@@ -74,6 +79,12 @@ class App extends Component {
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
     this.startFirebase = this.startFirebase.bind(this);
     this.handleAiDiff = this.handleAiDiff.bind(this);
+    this.handleBackToMenu = this.handleBackToMenu.bind(this);
+    this.renderTimer = this.renderTimer.bind(this);
+    this.start = this.start.bind(this);
+    this.handleSet = this.handleSet.bind(this);
+    this.handleTimerEnd = this.handleTimerEnd.bind(this);
+    this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
   }
 
 
@@ -196,13 +207,20 @@ class App extends Component {
     document
       .querySelectorAll(".alert")
       .forEach(el => (el.style.display = "none"));
+    //document.querySelector("#message1").style.display = "none";
+
 
       var tempState = this.state.game;
       tempState.boardState = new Array(9).fill(2);
       tempState.turn = 0;
       tempState.active = true;
 
+      this.setState({timerEnd: false});
+
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
+
+      //this.setState({timer: this.state.timer});
+      //this.start();
 
     /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
       this.setState({
@@ -220,6 +238,7 @@ class App extends Component {
   //     appened the rest of the array after id
   //  update firebase with new array
   handleNewMove(id) {
+    //this.start();
    var tempState = this.state.game;
 
    tempState.boardState = this.state.game.boardState.slice(0, id)
@@ -247,6 +266,7 @@ class App extends Component {
       }
     );
     */
+   this.start();
   }
 
   handleModeChange(e) {
@@ -277,7 +297,20 @@ class App extends Component {
   // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
-    // probably set the firebase username here name = this.state.userName
+    var usernameExists = true;
+    firebase.database().ref(`users/${this.state.userName}/username`).once("value", snapshot => {
+      // If the username does not exist in firebase, add it.
+      if (!snapshot.exists()) {
+        var userName = this.state.userName;
+        var userRanking = this.state.userRanking;
+        firebase.database().ref(`users/${this.state.userName}`)
+          .set({
+            username: userName,
+            ranking: userRanking
+          });
+      }
+    });
+
     this.setState({gotName: true});
   }
 
@@ -317,6 +350,65 @@ class App extends Component {
     gameState.mistakeProbability = updatedProbability;
     this.setState({game: gameState});
     //console.log(this.state.game.mistakeProbability);
+  }
+
+  //handles updating timer from settings component
+  handleTimerUpdate = (newTimeLimit) => {
+    this.setState({timer: newTimeLimit, turnWarn: newTimeLimit - 10000});
+  }
+
+  //placeholder for game to menu transition
+  //may need additional game logic for player leaving game
+  handleBackToMenu() {
+    this.setState({firstLoad: true});
+  }
+
+  //custom renderer passed to countdown to conditionally
+  //render countdown component
+  renderTimer = ({minutes, seconds, completed}) => {
+    //if timer runs out before a normal game ending
+    if (completed) {
+      //check whos turn it was when timer ended
+      //if x declare o winner
+      let winner = -1;
+      if (this.state.game.turn === 0) {
+        winner = 1;
+      } else {
+        winner = 0;
+      }
+      //custom end message
+      document.querySelector("#message1").innerHTML =
+      String.fromCharCode(symbolsMap[winner][1]) + " wins!";
+      document.querySelector("#message1").style.display = "block";
+      //updates game state
+      this.handleTimerEnd();
+      return <span>Times Up!</span>;
+    }
+    else {
+      if (this.state.timerEnd) {
+        return <span>Times Up!</span>
+      } else if (this.state.game.active === false) {
+        return <span>Game Over!</span>
+      }
+      return <span>{minutes}:{seconds}</span>;
+    }
+  }
+
+  //uses reference to countdown component to start timer
+  start() {
+    this.timerRef.start();
+  }
+
+  //passed to countdown component to set refernce to access timer funcs
+  handleSet(ref) {
+    this.timerRef = ref;
+  }
+
+  //handles a game end when the timer runs out before a normal game end
+  handleTimerEnd() {
+    let gameState = this.state.game;
+    gameState.active = false;
+    this.setState({game: gameState, timerEnd: true});
   }
 
   render() {
@@ -371,8 +463,9 @@ class App extends Component {
     else if (this.state.enterSettings) {
       return (
         <div>
-          <Settings 
-          handleAiDiff={this.handleAiDiff} 
+          <Settings
+          handleAiDiff={this.handleAiDiff}
+          handleTimerUpdate={this.handleTimerUpdate}
           handleSettingsClick={this.handleSettingsClick}
           />
         </div>
@@ -391,7 +484,17 @@ class App extends Component {
           rows = {rows}
           handleModeChange = {(event) => this.handleModeChange(event)}
           handleReset = {(event) => this.handleReset(event)}
+          handleBackToMenu = {this.handleBackToMenu}
         />
+        <div className="countdown">
+          <div className="timerText">Turn Timer:</div>
+          <Countdown
+            date={Date.now() + this.state.timer}
+            renderer={this.renderTimer}
+            ref={this.handleSet}
+            autoStart={false}
+            />
+        </div>
         </>
       )
     }

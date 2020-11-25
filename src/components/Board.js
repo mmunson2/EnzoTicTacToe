@@ -5,7 +5,7 @@ class Board extends React.Component {
   render() {
     if (this.props.singlePlayer) {
       return (
-        <div>
+        <div className="outDiv">
           <div className="container jumbotron" id="container">
             <p>
               <div>Select Mode:</div>
@@ -13,9 +13,10 @@ class Board extends React.Component {
               <button className="button" href="./?2P" onClick={this.props.handleModeChange} id="twop">2 Player</button>
               <div className="reset">
               <button className="button" href="#" onClick={this.props.handleReset}>Reset Game</button>
+              <button className="button" onClick={this.props.handleBackToMenu}>Back to Menu</button>
               </div>
             </p>
-            
+
             <div className="board">{this.props.rows}</div>
             <br/>
             <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.props.turn][1])}</b></p>
@@ -27,7 +28,7 @@ class Board extends React.Component {
     }
     else {
       return (
-        <div>
+        <div className="outDiv">
           <div className="container jumbotron" id="container">
             <div id="game-ID">
             <p> Game ID: {this.props.ID} </p>
@@ -35,9 +36,10 @@ class Board extends React.Component {
             <div className="reset">
             <p>
             <button className="button" href="#" onClick={this.props.handleReset}>Reset Game</button>
+            <button className="button" onClick={this.props.handleBackToMenu}>Back to Menu</button>
             </p>
             </div>
-            
+
             <div className="board">{this.props.rows}</div>
             <br/>
             <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.props.turn][1])}</b></p>
