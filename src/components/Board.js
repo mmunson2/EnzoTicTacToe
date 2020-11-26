@@ -10,7 +10,6 @@ class Board extends React.Component {
          turn: 0,
          active: true,
          mode: "AI",
-         ID: this.props.ID,
          playerMap: new Array(2).fill(2)
       };
 
@@ -25,10 +24,10 @@ class Board extends React.Component {
    componentDidMount(){
       console.log("mounted!");
       //console.log(this.state.gameID);
-      const boardRef = firebase.database().ref(`board/${this.state.ID}`);
+      const boardRef = firebase.database().ref(`board/${this.props.ID}`);
       boardRef.on('value', (snapshot) => {
          if(snapshot.val()!=null){
-            this.setState({game: snapshot.val()}, () => {
+            this.setState(snapshot.val(), () => {
                this.processBoard();
             });
          }
@@ -43,17 +42,18 @@ class Board extends React.Component {
   //  update firebase with new array
   handleNewMove(id) {
    //this.start();
-  var tempState = this.state;
+   //if(this.state.playerMap[this.state.turn] === this.props.userName){
+      var tempState = this.state;
 
-  tempState.boardState = this.state.boardState.slice(0, id)
-     .concat(this.state.turn)
-     .concat(this.state.boardState.slice(id+1));
+      tempState.boardState = this.state.boardState.slice(0, id)
+         .concat(this.state.turn)
+         .concat(this.state.boardState.slice(id+1));
 
-  tempState.turn = (this.state.turn + 1) % 2;
-  console.log(this.state);
+      tempState.turn = (this.state.turn + 1) % 2;
+      console.log(this.state);
 
-  firebase.database().ref(`board/${this.state.ID}`).set(tempState);
-
+      firebase.database().ref(`board/${this.props.ID}`).set(tempState);
+   //}
   //this.props.start();
  }
 
@@ -72,7 +72,7 @@ class Board extends React.Component {
 
      //this.setState({timerEnd: false});
 
-     firebase.database().ref(`board/${this.state.ID}`).set(tempState);
+     firebase.database().ref(`board/${this.props.ID}`).set(tempState);
  }
 
  handleModeChange(e) {
@@ -80,12 +80,12 @@ class Board extends React.Component {
    if (e.target.getAttribute("href").includes("AI")) {
      e.target.style.background = "#d4edda";
      document.querySelector("#twop").style.background = "none";
-     firebase.database().ref(`board/${this.state.ID}`).set({mode: "AI"});
+     firebase.database().ref(`board/${this.props.ID}`).set({mode: "AI"});
      this.handleReset(null);
    } else if (e.target.getAttribute("href").includes("2P")) {
      e.target.style.background = "#d4edda";
      document.querySelector("#ai").style.background = "none";
-     firebase.database().ref(`board/${this.state.ID}`).set({mode: "2P"});
+     firebase.database().ref(`board/${this.props.ID}`).set({mode: "2P"});
      this.handleReset(null);
    }
  }
@@ -109,7 +109,7 @@ class Board extends React.Component {
           var id = index + "-" + firstMark;
           document.getElementById(id).parentNode.style.background = "#d4edda";
         });
-        firebase.database().ref(`board/${this.state.ID}`).set({active: false});
+        firebase.database().ref(`board/${this.props.ID}`).set({active: false});
         won = true;
       }
     }
@@ -118,7 +118,7 @@ class Board extends React.Component {
   if (!this.state.boardState.includes(2) && !won) {
     document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
     document.querySelector("#message2").style.display = "block";
-    firebase.database().ref(`board/${this.state.ID}`).set({active: false});
+    firebase.database().ref(`board/${this.props.ID}`).set({active: false});
   } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
     this.makeAIMove();
   }
@@ -222,7 +222,7 @@ _getScore(score) {
         <div className="outDiv">
           <div className="container jumbotron" id="container">
             <div id="game-ID">
-            <p> Game ID: {this.state.ID} </p>
+            <p> Game ID: {this.props.ID} </p>
             </div>
             <div className="reset">
             <p>

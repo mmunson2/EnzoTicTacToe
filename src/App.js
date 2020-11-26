@@ -47,7 +47,6 @@ var fireInit = {
    turn: 0,
    active: true,
    mode: "AI",
-   ID: 0,
    playerMap: new Array(2).fill(2)
 };
 
@@ -133,6 +132,7 @@ class App extends Component {
    handleNewGameClick(event) {
       event.preventDefault();
       fireInit.playerMap[0] = this.state.userName;
+      fireInit.mode = "2P";
       let dbRef = firebase.database().ref('board').push(fireInit);
       this.setState({gameStart: true});
       this.setState({ID: dbRef.key});
@@ -148,7 +148,6 @@ class App extends Component {
                firebase.database().ref(`board/${this.state.ID}/playerMap`).set([newMap[0],this.state.userName]);
             }
          });
-      this.setState({userMap: 1});
       this.setState({gameStart: true});
       });
    }
@@ -302,7 +301,7 @@ class App extends Component {
           ID = {this.state.ID}
           patterns = {patterns}
           AIScore = {AIScore}
-          username = {this.state.userName}
+          userName = {this.state.userName}
           userMap = {this.state.userMap}
         />
         </>
