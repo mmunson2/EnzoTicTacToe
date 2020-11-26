@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import Row from "./Row";
 import firebase from '../firebase';
+import Countdown from 'react-countdown';
 
 class Board extends React.Component {
+   timerRef = null;
    constructor(props){
       super(props);
       this.state = {
@@ -10,7 +12,7 @@ class Board extends React.Component {
          turn: 0,
          active: true,
          mode: "AI",
-         playerMap: new Array(2).fill(2)
+         playerMap: new Array(2).fill(2),
       };
 
       this.handleNewMove = this.handleNewMove.bind(this);
@@ -19,6 +21,10 @@ class Board extends React.Component {
       this.processBoard = this.processBoard.bind(this);
       this.makeAIMove = this.makeAIMove.bind(this);
       this._getScore = this._getScore.bind(this);
+      this.renderTimer = this.renderTimer.bind(this);
+      this.start = this.start.bind(this);
+      this.handleSet = this.handleSet.bind(this);
+      this.handleTimerEnd = this.handleTimerEnd.bind(this);
    }
 
    componentDidMount(){
@@ -54,7 +60,7 @@ class Board extends React.Component {
 
       firebase.database().ref(`board/${this.props.ID}`).set(tempState);
    }
-  //this.props.start();
+  this.start();
  }
 
  handleReset(e) {
@@ -70,7 +76,7 @@ class Board extends React.Component {
      tempState.turn = 0;
      tempState.active = true;
 
-     //this.setState({timerEnd: false});
+     this.setState({timerEnd: false});
 
      firebase.database().ref(`board/${this.props.ID}`).set(tempState);
  }
@@ -181,6 +187,52 @@ _getScore(score) {
    return score;
  }
 
+  //custom renderer passed to countdown to conditionally
+  //render countdown component
+  renderTimer = ({minutes, seconds, completed}) => {
+   //if timer runs out before a normal game ending
+   if (completed) {
+     //check whos turn it was when timer ended
+     //if x declare o winner
+     let winner = -1;
+     if (this.state.turn === 0) {
+       winner = 1;
+     } else {
+       winner = 0;
+     }
+     //custom end message
+     document.querySelector("#message1").innerHTML =
+     String.fromCharCode(this.props.symbolsMap[winner][1]) + " wins!";
+     document.querySelector("#message1").style.display = "block";
+     //updates game state
+     this.handleTimerEnd();
+     return <span>Times Up!</span>;
+   }
+   else {
+     if (this.props.timerEnd) {
+       return <span>Times Up!</span>
+     } else if (this.state.active === false) {
+       return <span>Game Over!</span>
+     }
+     return <span>{minutes}:{seconds}</span>;
+   }
+ }
+
+ //uses reference to countdown component to start timer
+ start() {
+   this.timerRef.start();
+ }
+
+ //passed to countdown component to set refernce to access timer funcs
+ handleSet(ref) {
+   this.timerRef = ref;
+ }
+
+ //handles a game end when the timer runs out before a normal game end
+ handleTimerEnd() {
+   this.setState({active: false, timerEnd: true});
+ }
+
    render() {
       const rows = [];
       for (var i = 0; i < 3; i++) {
@@ -214,6 +266,15 @@ _getScore(score) {
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
           </div>
+          <div className="countdown">
+          <div className="timerText">Turn Timer:</div>
+          <Countdown
+            date={Date.now() + this.props.timer}
+            renderer={this.renderTimer}
+            ref={this.handleSet}
+            autoStart={false}
+            />
+        </div>
         </div>
       );
     }
@@ -237,6 +298,15 @@ _getScore(score) {
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
           </div>
+          <div className="countdown">
+          <div className="timerText">Turn Timer:</div>
+          <Countdown
+            date={Date.now() + this.props.timer}
+            renderer={this.renderTimer}
+            ref={this.handleSet}
+            autoStart={false}
+            />
+        </div>
         </div>
       );
     }

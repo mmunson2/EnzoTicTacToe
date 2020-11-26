@@ -78,10 +78,6 @@ class App extends Component {
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
     this.handleAiDiff = this.handleAiDiff.bind(this);
     this.handleBackToMenu = this.handleBackToMenu.bind(this);
-    this.renderTimer = this.renderTimer.bind(this);
-    this.start = this.start.bind(this);
-    this.handleSet = this.handleSet.bind(this);
-    this.handleTimerEnd = this.handleTimerEnd.bind(this);
     this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
     this.handleNewGameClick = this.handleNewGameClick.bind(this);
     this.handleIDUpdate = this.handleIDUpdate.bind(this);
@@ -118,6 +114,7 @@ class App extends Component {
   handleMenuClick(event) {
     this.setState({singlePlayer: true});
     event.preventDefault();
+    fireInit.playerMap = [this.state.userName,this.state.userName];
     let dbRef = firebase.database().ref('board').push(fireInit);
     this.setState({firstLoad: false});
     this.setState({gameStart: true});
@@ -176,54 +173,6 @@ class App extends Component {
   handleBackToMenu() {
     this.setState({firstLoad: true});
     this.setState({gameStart: false});
-  }
-
-  //custom renderer passed to countdown to conditionally
-  //render countdown component
-  renderTimer = ({minutes, seconds, completed}) => {
-    //if timer runs out before a normal game ending
-    if (completed) {
-      //check whos turn it was when timer ended
-      //if x declare o winner
-      let winner = -1;
-      if (this.state.game.turn === 0) {
-        winner = 1;
-      } else {
-        winner = 0;
-      }
-      //custom end message
-      document.querySelector("#message1").innerHTML =
-      String.fromCharCode(symbolsMap[winner][1]) + " wins!";
-      document.querySelector("#message1").style.display = "block";
-      //updates game state
-      this.handleTimerEnd();
-      return <span>Times Up!</span>;
-    }
-    else {
-      if (this.state.timerEnd) {
-        return <span>Times Up!</span>
-      } else if (this.state.game.active === false) {
-        return <span>Game Over!</span>
-      }
-      return <span>{minutes}:{seconds}</span>;
-    }
-  }
-
-  //uses reference to countdown component to start timer
-  start() {
-    this.timerRef.start();
-  }
-
-  //passed to countdown component to set refernce to access timer funcs
-  handleSet(ref) {
-    this.timerRef = ref;
-  }
-
-  //handles a game end when the timer runs out before a normal game end
-  handleTimerEnd() {
-    let gameState = this.state.game;
-    gameState.active = false;
-    this.setState({game: gameState, timerEnd: true});
   }
 
   render() {
@@ -302,7 +251,8 @@ class App extends Component {
           patterns = {patterns}
           AIScore = {AIScore}
           userName = {this.state.userName}
-          userMap = {this.state.userMap}
+          timerEnd = {this.state.timerEnd}
+          timer = {this.state.timer}
         />
         </>
       )
@@ -312,15 +262,3 @@ class App extends Component {
 
 
 export default App;
-
-/*
-<div className="countdown">
-          <div className="timerText">Turn Timer:</div>
-          <Countdown
-            date={Date.now() + this.state.timer}
-            renderer={this.renderTimer}
-            ref={this.handleSet}
-            autoStart={false}
-            />
-        </div>
-*/
