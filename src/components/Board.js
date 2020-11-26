@@ -42,7 +42,7 @@ class Board extends React.Component {
   //  update firebase with new array
   handleNewMove(id) {
    //this.start();
-   //if(this.state.playerMap[this.state.turn] === this.props.userName){
+   if(this.state.playerMap[this.state.turn] === this.props.userName){
       var tempState = this.state;
 
       tempState.boardState = this.state.boardState.slice(0, id)
@@ -53,7 +53,7 @@ class Board extends React.Component {
       console.log(this.state);
 
       firebase.database().ref(`board/${this.props.ID}`).set(tempState);
-   //}
+   }
   //this.props.start();
  }
 
