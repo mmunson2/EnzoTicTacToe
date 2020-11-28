@@ -334,6 +334,7 @@ class App extends Component {
       document.querySelector("#message1").innerHTML =
       String.fromCharCode(symbolsMap[winner][1]) + " wins!";
       document.querySelector("#message1").style.display = "block";
+ 
       //updates game state
       this.handleTimerEnd();
       return <span>Times Up!</span>;
