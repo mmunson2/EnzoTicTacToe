@@ -11,7 +11,7 @@ class Board extends React.Component {
          boardState: new Array(9).fill(2),
          turn: 0,
          active: true,
-         mode: "AI",
+         mode: "2P",
          playerMap: new Array(2).fill(2),
       };
 

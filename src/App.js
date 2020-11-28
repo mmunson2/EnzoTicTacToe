@@ -109,8 +109,9 @@ class App extends Component {
     this.setState({gotName: true});
   }
 
-  // placeholder for menu click event
-  // currently just updates firstload state to false
+  // handles single player games
+  // initializes with basic firebase
+  // sets player map for both moves to be made by user
   handleMenuClick(event) {
     this.setState({singlePlayer: true});
     event.preventDefault();
@@ -121,20 +122,23 @@ class App extends Component {
     this.setState({ID: dbRef.key});
   }
 
+  // update state so user moves from menu to multiplayer menu
   handleMenuClickMultiplayer(event) {
     this.setState({singlePlayer: false});
     this.setState({firstLoad: false});
   }
 
-   handleNewGameClick(event) {
-      event.preventDefault();
-      fireInit.playerMap[0] = this.state.userName;
-      fireInit.mode = "2P";
-      let dbRef = firebase.database().ref('board').push(fireInit);
-      this.setState({gameStart: true});
-      this.setState({ID: dbRef.key});
-   }
+  // start a new game from scratch, initialize firebase with fireInit properties
+  handleNewGameClick(event) {
+    event.preventDefault();
+    fireInit.playerMap[0] = this.state.userName;
+    fireInit.mode = "2P"; //don't want the AI to be making moves
+    let dbRef = firebase.database().ref('board').push(fireInit);//push basic board
+    this.setState({gameStart: true});
+    this.setState({ID: dbRef.key}); //add gameID so we can listen
+  }
 
+   //update game ID if someone wants to join a game with a friend
    handleIDUpdate(id){
       this.setState({ID: id}, ()=> {
          let boardRef = firebase.database().ref(`board/${this.state.ID}/playerMap`);
@@ -142,6 +146,7 @@ class App extends Component {
          boardRef.once('value', (snapshot) => {
             if(snapshot.val()!=null){//don't do anything if its empty
                let newMap = snapshot.val();
+               // set user as newMap[1] "o" for this game. don't change newmap 'x'
                firebase.database().ref(`board/${this.state.ID}/playerMap`).set([newMap[0],this.state.userName]);
             }
          });
@@ -175,9 +180,7 @@ class App extends Component {
     this.setState({gameStart: false});
   }
 
-  render() {
-    // populates rows using current board state
-    
+  render() {  
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -225,6 +228,7 @@ class App extends Component {
         </div>
       )
     }
+    // load mutliplayer menu to join or start a new game
     else if (!this.state.gameStart && !this.state.singlePlayer){
       return (
         <>
@@ -238,6 +242,7 @@ class App extends Component {
       )
     }
     // loads game board and functionality
+    // pass settings, game info, etc. to board to start new game
     else {
       return (
         <>
