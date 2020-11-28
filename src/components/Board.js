@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Row from "./Row";
-
+import clickSound from "../assets/sounds/pop-down.mp3"
 class Board extends React.Component {
   render() {
     if (this.props.singlePlayer) {
@@ -22,6 +22,7 @@ class Board extends React.Component {
             <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.props.turn][1])}</b></p>
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
+			<audio id="click-sound" src={clickSound} preload="auto"></audio>
           </div>
         </div>
       );
@@ -45,6 +46,8 @@ class Board extends React.Component {
             <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.props.turn][1])}</b></p>
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
+			<audio id="click-sound" src={clickSound} preload="auto"></audio>
+
           </div>
         </div>
       );
