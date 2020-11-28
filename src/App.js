@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import Menu from "./components/Menu";
 import Settings from "./components/Settings";
 import Board from "./components/Board";
+import ReactModal from 'react-modal';
 
 var symbolsMap = {
   2: ["marking", "32"],
@@ -62,7 +63,8 @@ class App extends Component {
       timer: 30000,
       turnWarn: 20000,
       timerEnd: false,
-      singlePlayer: false
+      singlePlayer: false,
+	  showModal: false
     };
 
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -84,6 +86,16 @@ class App extends Component {
     this.handleSet = this.handleSet.bind(this);
     this.handleTimerEnd = this.handleTimerEnd.bind(this);
     this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
+	this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+  }
+  
+  handleOpenModal () {
+	this.setState({showModal: true});
+  }
+  
+  handleCloseModal () {
+    this.setState({showModal: false});
   }
 
   // Function starts the firebase listening at the game ID branch of the database
@@ -111,6 +123,8 @@ class App extends Component {
         });
 
         if (marks.length === 3) {
+			this.setState({winner:symbolsMap[marks[0]][1]});
+			this.handleOpenModal();
           document.querySelector("#message1").innerHTML =
             String.fromCharCode(symbolsMap[marks[0]][1]) + " wins!";
           document.querySelector("#message1").style.display = "block";
@@ -200,7 +214,10 @@ class App extends Component {
       tempState.turn = 0;
       tempState.active = true;
 
-      this.setState({timerEnd: false});
+      this.setState({
+						timerEnd: false,
+						showModal: false
+					});
 
       firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
   }
@@ -331,12 +348,13 @@ class App extends Component {
         winner = 0;
       }
       //custom end message
-      document.querySelector("#message1").innerHTML =
-      String.fromCharCode(symbolsMap[winner][1]) + " wins!";
-      document.querySelector("#message1").style.display = "block";
+      //document.querySelector("#message1").innerHTML =
+      //String.fromCharCode(symbolsMap[winner][1]) + " wins!";
+      //document.querySelector("#message1").style.display = "block";
  
       //updates game state
       this.handleTimerEnd();
+	  
       return <span>Times Up!</span>;
     }
     else {
@@ -451,6 +469,27 @@ class App extends Component {
             ref={this.handleSet}
             autoStart={false}
             />
+			<ReactModal 
+			   isOpen={this.state.showModal}
+			   className="gameOverDialog"
+			   overlayClassName="gameOverOverlay"
+			>
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h4 class="modal-title">Game Over</h4>
+					<button type="button" class="close" onClick={(event) => this.handleReset(event)}>&times;</button>
+				  </div>
+
+				  <div class="modal-body">
+					<p class="centerAlign">{"Player " + String.fromCharCode(this.state.winner) + " wins!"}</p>
+				  </div>
+
+				  <div class="modal-footer">
+					<button class="button" onClick={(event) => this.handleReset(event)}>Restart Game</button>
+				  </div>
+				</div>
+								
+			</ReactModal>
         </div>
         </>
       )

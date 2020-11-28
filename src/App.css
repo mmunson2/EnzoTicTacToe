@@ -204,6 +204,26 @@ ul {
   margin-bottom: -20px;
 }
 
+.gameOverDialog {
+    position: absolute;
+    top: 50%; left: 50%; 
+	transform: translate(-50%, -50%);
+    background-color: white;
+}
+
+.gameOverOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.centerAlign {
+	text-align: center;
+}
+  
 #ai {
   background: #d4edda;
 }
