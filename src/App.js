@@ -177,10 +177,10 @@ class App extends Component {
   // handles changing AI difficulty
   // takes data from settings child component and updates state
   handleAiDiff = (updatedProbability) => {
-    let gameState = this.state.game;
-    gameState.mistakeProbability = updatedProbability;
-    this.setState({game: gameState});
-    //console.log(this.state.game.mistakeProbability);
+    let currState = this.state;
+    currState.mistakeProbability = updatedProbability;
+    this.setState({state: currState});
+    console.log(this.state.mistakeProbability);
   }
 
   //handles updating timer from settings component
