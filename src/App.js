@@ -57,6 +57,7 @@ class App extends Component {
       userName: "",
       enterSettings: false,
       userRanking: 0,
+      totalScore: 0,
       gotName: false,
       firstLoad: true,
       timer: 30000,
@@ -69,7 +70,7 @@ class App extends Component {
       userMap: 0
     };
 
-    
+    this.calculateRanking = this.calculateRanking.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
@@ -78,6 +79,7 @@ class App extends Component {
     this.handleAiDiff = this.handleAiDiff.bind(this);
     this.handleBackToMenu = this.handleBackToMenu.bind(this);
     this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
+    this.handleUpdateScore = this.handleUpdateScore.bind(this);
     this.handleNewGameClick = this.handleNewGameClick.bind(this);
     this.handleIDUpdate = this.handleIDUpdate.bind(this);
   }
@@ -91,17 +93,31 @@ class App extends Component {
   // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
+    this.calculateRanking();
     var usernameExists = true;
     firebase.database().ref(`users/${this.state.userName}/username`).once("value", snapshot => {
       // If the username does not exist in firebase, add it.
       if (!snapshot.exists()) {
         var userName = this.state.userName;
         var userRanking = this.state.userRanking;
+        var userScore = this.state.totalScore;
         firebase.database().ref(`users/${this.state.userName}`)
           .set({
             username: userName,
-            ranking: userRanking
+            ranking: userRanking,
+            totalScore: userScore
           });
+      } else {
+        console.log("snapshot does exist");
+        console.log(this.state.totalScore);
+        firebase.database().ref(`users/${this.state.userName}`).once("value").then((snapshot) => {
+          console.log(snapshot.val().totalScore);
+          this.setState({
+            username: snapshot.val().username,
+            totalScore: snapshot.val().totalScore,
+            userRanking: snapshot.val().ranking
+          })
+        })
       }
     });
 
@@ -114,7 +130,7 @@ class App extends Component {
   handleMenuClick(event) {
     this.setState({singlePlayer: true});
     event.preventDefault();
-    fireInit.playerMap = [this.state.userName,this.state.userName];
+    fireInit.playerMap = [this.state.userName, this.state.userName];
     let dbRef = firebase.database().ref('board').push(fireInit);
     this.setState({firstLoad: false});
     this.setState({gameStart: true});
@@ -179,7 +195,35 @@ class App extends Component {
     this.setState({gameStart: false});
   }
 
-  render() {  
+  handleUpdateScore(newScore) {
+    this.setState({totalScore: newScore});
+  }
+
+  calculateRanking() {
+    var list = [];
+    firebase.database().ref(`users/`)
+      .orderByChild("totalScore")
+      .on('child_added', function(snapshot) {
+        list.push(snapshot.val().username);
+      });
+    console.log("HELLO");
+    console.log(list);
+    var tempRanking;
+    Object.entries(list)
+        .reverse().map((currentVal, i) => {
+          console.log("hello");
+          if (currentVal[1] === this.state.userName) {
+            console.log("your ranking " + i);
+            tempRanking = i;
+          }
+        });
+    this.setState({
+      userRanking: tempRanking
+    })
+    return
+  }
+
+  render() {
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -200,17 +244,17 @@ class App extends Component {
 
       //checks its the component's first load
       //loads menu if it is
-      } 
+      }
       else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
-            <Menu 
-            handleMenuClick={this.handleMenuClick} 
+            <Menu
+            handleMenuClick={this.handleMenuClick}
             handleMenuClickMultiplayer={this.handleMenuClickMultiplayer}
-            handleSettingsClick={this.handleSettingsClick} 
-            username={this.state.userName} 
-            userRanking={this.state.userRanking} 
+            handleSettingsClick={this.handleSettingsClick}
+            username={this.state.userName}
+            calculateRanking={this.calculateRanking}
             />
         </div>
         );
@@ -233,8 +277,8 @@ class App extends Component {
       return (
         <>
         <Header />
-            <MultiplayerMenu 
-            handleNewGameClick={this.handleNewGameClick} 
+            <MultiplayerMenu
+            handleNewGameClick={this.handleNewGameClick}
             handleJoinGameClick={this.handleMenuClickMultiplayer}
             handleIDUpdate={this.handleIDUpdate}
             />
@@ -251,13 +295,16 @@ class App extends Component {
           singlePlayer = {this.state.singlePlayer}
           symbolsMap = {symbolsMap}
           handleBackToMenu = {this.handleBackToMenu}
+          handleUpdateScore = {this.handleUpdateScore}
           mistakeProbability = {this.state.mistakeProbability}
           ID = {this.state.ID}
           patterns = {patterns}
           AIScore = {AIScore}
           userName = {this.state.userName}
+          singlePlayer = {this.state.singlePlayer}
           timerEnd = {this.state.timerEnd}
           timer = {this.state.timer}
+          totalScore = {this.state.totalScore}
         />
         </>
       )

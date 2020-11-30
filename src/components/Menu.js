@@ -10,7 +10,7 @@ class Menu extends React.Component {
         return (
             <div className="flexContainer">
 
-              <User username={this.props.username} userRanking={this.props.userRanking} />
+              <User username={this.props.username} userRanking={this.props.userRanking} calculateRanking={this.props.calculateRanking} />
 
               <div className="menu">
                   <div className="menuSelect">

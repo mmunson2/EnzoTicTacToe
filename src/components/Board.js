@@ -116,7 +116,33 @@ class Board extends React.Component {
           var id = index + "-" + firstMark;
           document.getElementById(id).parentNode.style.background = "#d4edda";
         });
-        firebase.database().ref(`board/${this.props.ID}`).set({active: false});
+        firebase.database().ref(`board/${this.props.ID}`).update({active: false});
+
+        // If the user won, add 2 to their total score. (This loop occurs twice so I am adding half of the 2 each time)
+        console.log(this.state.playerMap);
+        firebase.database().ref(`board/${this.props.ID}`).once('value', (snapshot) => {
+          console.log(snapshot.val().mode);
+          if (snapshot.val().mode === "AI") {
+            if (this.state.turn === 1) {
+              var newScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: newScore
+              });
+              this.props.handleUpdateScore(newScore);
+            }
+          } else if (!this.props.singlePlayer) {
+            console.log(this.state.playerMap[this.state.turn]);
+            console.log(this.props.userName);
+            if(this.state.playerMap[this.state.turn] !== this.props.userName) {
+              console.log("the user won!");
+              var newScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: newScore
+              });
+              this.props.handleUpdateScore(newScore);
+            }
+          }
+        });
         won = true;
       }
     }
@@ -126,6 +152,11 @@ class Board extends React.Component {
     document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
     document.querySelector("#message2").style.display = "block";
     firebase.database().ref(`board/${this.props.ID}`).set({active: false});
+
+    // When tied, add 1 to user's total score.
+    firebase.database().ref(`users/${this.props.userName}`).update({
+      totalScore: this.props.totalScore + 1
+    });
   } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
     this.makeAIMove();
   }
@@ -169,7 +200,7 @@ makeAIMove() {
    });
    this.handleNewMove(emptys[maxIndex]);
  }
- 
+
 //Returns the passed in score with the chance of the AI making a mistake
 //"Mistakes" will bias the score += 5
 _getScore(score) {
@@ -246,7 +277,7 @@ _getScore(score) {
           />
         );
       }
-    
+
       if (this.props.singlePlayer) {
       return (
         <div className="outDiv">
