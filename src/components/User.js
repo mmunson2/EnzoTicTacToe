@@ -6,21 +6,51 @@ class User extends React.Component {
   constructor() {
     super();
     this.state = {
-      blehList: ["blah", "boo", "beh", "bleh"],
+      userRanking: 0,
       topUsersList: {}
     }
+    this.calculateRanking = this.calculateRanking.bind(this);
+  }
+
+  calculateRanking() {
+    var list = [];
+    var tempRanking;
+    firebase.database().ref(`users/`)
+      .orderByChild("totalScore")
+      .on('child_added', function(snapshot) {
+        list.push(snapshot.val().username);
+      })
+    Object.entries(list).reverse().map((currentVal, i) => {
+      if (currentVal[1] === this.props.username) {
+        // return <li>You: #{i + 1}</li>
+        // this.setState({
+        //   userRanking: i + 1
+        // })
+        tempRanking = i + 1;
+      }
+    })
+    console.log("tempranking " + tempRanking);
+    this.setState({
+      userRanking: tempRanking
+    })
+    console.log("user ranking: " + this.state.userRanking);
   }
 
   componentDidMount() {
-    var list = [];
+    this.calculateRanking();
+    const list = [];
     firebase.database().ref(`users/`)
       .orderByChild("totalScore")
       .limitToLast(5)
       .on('child_added', function(snapshot) {
         list.push(snapshot.val().username);
       })
-    this.setState({
-      topUsersList:list});
+    if (list !== this.state.topUsersList) {
+      console.log(list);
+      this.setState({
+        topUsersList:list
+      });
+    }
   }
 
   render() {
@@ -29,6 +59,7 @@ class User extends React.Component {
        return <li>{i+1}. {currentVal[1]}</li>
       })
 
+      console.log("ranking is " + this.state.userRanking);
       return (
         <div>
         <div className="leadertext">
@@ -37,10 +68,9 @@ class User extends React.Component {
         </div>
         <ul>
           {listItems}
-
         </ul>
         <ul>
-          <li>{this.props.userRanking === 0 ? "" : this.props.username + ": #" + this.props.userRanking}</li>
+          <li>{!this.state.userRanking ? "" : this.props.username + ": #" + this.state.userRanking}</li>
         </ul>
         </div>
       );

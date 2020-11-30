@@ -57,6 +57,7 @@ class App extends Component {
       userName: "",
       enterSettings: false,
       userRanking: 0,
+      totalScore: 0,
       gotName: false,
       firstLoad: true,
       timer: 30000,
@@ -69,7 +70,7 @@ class App extends Component {
       userMap: 0
     };
 
-    
+    //this.calculateRanking = this.calculateRanking.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
@@ -91,17 +92,26 @@ class App extends Component {
   // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
+    // this.calculateRanking();
     var usernameExists = true;
-    firebase.database().ref(`"users/"${this.state.userName}/username`).once("value", snapshot => {
+    firebase.database().ref(`users/${this.state.userName}`).once("value", snapshot => {
       // If the username does not exist in firebase, add it.
       if (!snapshot.exists()) {
+        console.log("user does not exist");
         var userName = this.state.userName;
-        var userRanking = this.state.userRanking;
+        var userScore = this.state.totalScore;
         firebase.database().ref(`users/${this.state.userName}`)
           .set({
             username: userName,
-            ranking: userRanking
+            totalScore: userScore
           });
+      } else {
+        firebase.database().ref(`users/${this.state.userName}`).once('value', (snapshot => {
+          this.setState({
+            username: snapshot.val().username,
+            totalScore: snapshot.val().totalScore
+          });
+        }));
       }
     });
 
@@ -179,7 +189,25 @@ class App extends Component {
     this.setState({gameStart: false});
   }
 
-  render() {  
+  // calculateRanking() {
+  //   var list = [];
+  //   firebase.database().ref(`users/`)
+  //     .orderByChild("totalScore")
+  //     .on('child_added', function(snapshot) {
+  //       list.push(snapshot.val().username);
+  //     })
+  //   Object.entries(list).reverse().map((currentVal, i) => {
+  //     if (currentVal[1] === this.state.userName) {
+  //       // return <li>You: #{i + 1}</li>
+  //       this.setState({
+  //         userRanking: i + 1
+  //       })
+  //       console.log(this.state.userRanking);
+  //     }
+  //   })
+  // }
+
+  render() {
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -200,17 +228,16 @@ class App extends Component {
 
       //checks its the component's first load
       //loads menu if it is
-      } 
+      }
       else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
-            <Menu 
-            handleMenuClick={this.handleMenuClick} 
+            <Menu
+            handleMenuClick={this.handleMenuClick}
             handleMenuClickMultiplayer={this.handleMenuClickMultiplayer}
-            handleSettingsClick={this.handleSettingsClick} 
-            username={this.state.userName} 
-            userRanking={this.state.userRanking} 
+            handleSettingsClick={this.handleSettingsClick}
+            username={this.state.userName}
             />
         </div>
         );
@@ -233,8 +260,8 @@ class App extends Component {
       return (
         <>
         <Header />
-            <MultiplayerMenu 
-            handleNewGameClick={this.handleNewGameClick} 
+            <MultiplayerMenu
+            handleNewGameClick={this.handleNewGameClick}
             handleJoinGameClick={this.handleMenuClickMultiplayer}
             handleIDUpdate={this.handleIDUpdate}
             />
@@ -256,8 +283,10 @@ class App extends Component {
           patterns = {patterns}
           AIScore = {AIScore}
           userName = {this.state.userName}
+          singlePlayer = {this.state.singlePlayer}
           timerEnd = {this.state.timerEnd}
           timer = {this.state.timer}
+          totalScore = {this.state.totalScore}
         />
         </>
       )

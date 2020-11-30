@@ -6,28 +6,33 @@ import settingsIcon from "../assets/settings.png";
 import User from "./User"
 
 class Menu extends React.Component {
+  // componentDidMount() {
+  //   this.props.calculateRanking();
+  // }
+
   render() {
-        return (
-            <div className="flexContainer">
+    console.log(this.props.userRanking);
+    return (
+        <div className="flexContainer">
 
-              <User username={this.props.username} userRanking={this.props.userRanking} />
+          <User username={this.props.username}/>
 
-              <div className="menu">
-                  <div className="menuSelect">
-                    <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
-                    <span onClick={this.props.handleMenuClick}>Play Offline</span>
-                  </div>
-                  <div className="menuSelect">
-                    <img src={oIcon} alt="o icon" className="menuIcon" onClick={this.props.handleMenuClickMultiplayer}/>
-                    <span onClick={this.props.handleMenuClickMultiplayer}>Play with friends</span>
-                  </div>
-                  <div className="menuSelect">
-                    <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleSettingsClick}/>
-                    <span onClick={this.props.handleSettingsClick}>Settings</span>
-                  </div>
-              </div>
+          <div className="menu">
+            <div className="menuSelect">
+              <img src={xIcon} alt="x icon" className="menuIcon" onClick={this.props.handleMenuClick}/>
+              <span onClick={this.props.handleMenuClick}>Play Offline</span>
             </div>
-        );
+            <div className="menuSelect">
+              <img src={oIcon} alt="o icon" className="menuIcon" onClick={this.props.handleMenuClickMultiplayer}/>
+              <span onClick={this.props.handleMenuClickMultiplayer}>Play with friends</span>
+            </div>
+            <div className="menuSelect">
+              <img src={settingsIcon} alt="settings icon" className="menuIcon" onClick={this.props.handleSettingsClick}/>
+              <span onClick={this.props.handleSettingsClick}>Settings</span>
+            </div>
+          </div>
+        </div>
+  );
     }
 }
 

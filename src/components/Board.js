@@ -116,8 +116,30 @@ class Board extends React.Component {
           var id = index + "-" + firstMark;
           document.getElementById(id).parentNode.style.background = "#d4edda";
         });
-        firebase.database().ref(`board/${this.props.ID}`).set({active: false});
+        firebase.database().ref(`board/${this.props.ID}`).update({active: false});
         won = true;
+        firebase.database().ref(`board/${this.props.ID}`).once('value', (snapshot) => {
+          console.log("enter firebase " + snapshot.val().mode);
+          if (snapshot.val().mode === "AI") {
+            console.log("ai");
+            if (this.state.turn === 1) {
+              console.log("AI mode, user won");
+              var tempScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: tempScore
+              });
+            }
+          } else if (!this.props.singlePlayer) {
+            console.log("is not singleplayer");
+            console.log(this.state.playerMap);
+            if (this.state.playerMap[this.state.turn] !== this.props.userName) {
+              var tempScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: tempScore
+              });
+            }
+          }
+        })
       }
     }
   });
@@ -169,7 +191,7 @@ makeAIMove() {
    });
    this.handleNewMove(emptys[maxIndex]);
  }
- 
+
 //Returns the passed in score with the chance of the AI making a mistake
 //"Mistakes" will bias the score += 5
 _getScore(score) {
@@ -246,7 +268,7 @@ _getScore(score) {
           />
         );
       }
-    
+
       if (this.props.singlePlayer) {
       return (
         <div className="outDiv">
