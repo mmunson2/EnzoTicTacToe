@@ -165,12 +165,26 @@ ul {
   margin-bottom: 20px;
 }
 
+.countdown {
+  text-align: center;
+  font-family: 'Righteous', sans-serif;
+  font-size: 20px;
+}
+
+.timerText {
+  color: black;
+}
+
 .marking-x {
   color: lightblue;
+  opacity: 100.0;
+  animation: fadeIn ease 2s;
 }
 
 .marking-o {
   color: lightcoral;
+  opacity: 100.0;
+  animation: fadeIn ease 2s;
 }
 
 .alert {
@@ -190,6 +204,10 @@ ul {
   font-family: 'Righteous', sans-serif;
 }
 
+.outDiv {
+  margin-bottom: -20px;
+}
+
 #ai {
   background: #d4edda;
 }
@@ -198,4 +216,16 @@ ul {
   width: 600px;
   height: 500px;
   background-color: white;
+}
+
+#game-ID {
+  font-family: 'Righteous', sans-serif;
+  text-align: center;
+  font-size: 18px;
+  margin-top: -40px;
+}
+
+@keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
 }

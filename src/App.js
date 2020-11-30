@@ -1,12 +1,14 @@
 
 
 import React, { Component } from "react";
+import Countdown from 'react-countdown';
 import "bootstrap/dist/css/bootstrap.css";
 import Row from "./components/Row";
 import "./App.css";
 import firebase from './firebase';
 import Header from "./components/Header";
 import Menu from "./components/Menu";
+import MultiplayerMenu from "./components/MultiplayerMenu";
 import Settings from "./components/Settings";
 import Board from "./components/Board";
 
@@ -31,239 +33,55 @@ var patterns = [
 ];
 
 //Weights to determine how the AI scores a square containing:
-
 var AIScore = { 2: 1,   //Empty given a score of 1
                 0: 2,   //Player given a score of 2
                 1: 0 }; //AI given a score of 0
 
 //This is the primary means of setting difficulty, must be between 0 and 1
 //Suggested: Easy=0.6 Medium=0.4, Hard=0.2
-var mistakeProbability = 0.4;
+//var mistakeProbability = 0.4;
 
+var fireInit = {
+   boardState: new Array(9).fill(2),
+   turn: 0,
+   active: true,
+   mode: "AI",
+   playerMap: new Array(2).fill(2)
+};
 
 class App extends Component {
+  timerRef = null;
   constructor(props) {
     super(props);
     this.state = {
-      game: {
-         boardState: new Array(9).fill(2),
-         turn: 0,
-         active: true,
-         mode: "AI",
-         ID: 0
-      },
       userName: "",
       enterSettings: false,
       userRanking: 0,
       gotName: false,
-      firstLoad: true
+      firstLoad: true,
+      timer: 30000,
+      turnWarn: 20000,
+      timerEnd: false,
+      singlePlayer: false,
+      mistakeProbability: 0.4,
+      ID: 0,
+      gameStart: false,
+      userMap: 0
     };
 
-    this.handleNewMove = this.handleNewMove.bind(this);
-    this.handleReset = this.handleReset.bind(this);
-    this.handleModeChange = this.handleModeChange.bind(this);
-    this.processBoard = this.processBoard.bind(this);
-    this.makeAIMove = this.makeAIMove.bind(this);
-    this._getScore = this._getScore.bind(this);
+    
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.handleMenuClickMultiplayer = this.handleMenuClickMultiplayer.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
-    this.startFirebase = this.startFirebase.bind(this);
+    this.handleAiDiff = this.handleAiDiff.bind(this);
+    this.handleBackToMenu = this.handleBackToMenu.bind(this);
+    this.handleTimerUpdate = this.handleTimerUpdate.bind(this);
+    this.handleNewGameClick = this.handleNewGameClick.bind(this);
+    this.handleIDUpdate = this.handleIDUpdate.bind(this);
   }
 
-
-   /*
-   Function starts the firebase listening at the game ID branch of the database
-   */
-   startFirebase() {
-      console.log("mounted!");
-      //console.log(this.state.gameID);
-      const boardRef = firebase.database().ref(`board/${this.state.game.ID}`);
-      boardRef.on('value', (snapshot) => {
-         if(snapshot.val()!=null){
-            this.setState({game: snapshot.val()}, () => {
-               this.processBoard();
-            });
-         }
-      });
-   }
-
-  processBoard() {
-     console.log("In processBoard");
-    var won = false;
-    patterns.forEach(pattern => {
-      var firstMark = this.state.game.boardState[pattern[0]];
-
-      if (firstMark !== 2) {
-        var marks = this.state.game.boardState.filter((mark, index) => {
-          return pattern.includes(index) && mark === firstMark; //looks for marks matching the first in pattern's index
-        });
-
-        if (marks.length === 3) {
-          document.querySelector("#message1").innerHTML =
-            String.fromCharCode(symbolsMap[marks[0]][1]) + " wins!";
-          document.querySelector("#message1").style.display = "block";
-          pattern.forEach(index => {
-            var id = index + "-" + firstMark;
-            document.getElementById(id).parentNode.style.background = "#d4edda";
-          });
-          var tempState = this.state.game;
-          tempState.active = false;
-          firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-          //this.setState({ active: false });
-          won = true;
-        }
-      }
-    });
-
-    if (!this.state.game.boardState.includes(2) && !won) {
-      document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
-      document.querySelector("#message2").style.display = "block";
-      var tempState = this.state.game;
-      tempState.active = false;
-      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-      //this.setState({ active: false });
-    } else if (this.state.game.mode === "AI" && this.state.game.turn === 1 && !won) {
-      this.makeAIMove();
-    }
-
-  }
-
-  makeAIMove() {
-    var emptys = [];
-    var scores = [];
-    this.state.game.boardState.forEach((mark, index) => {
-      if (mark === 2) emptys.push(index);
-    });
-
-    emptys.forEach(index => {
-      var score = 0;
-      patterns.forEach(pattern => {
-        if (pattern.includes(index)) {
-          var xCount = 0;
-          var oCount = 0;
-          pattern.forEach(p => {
-            if (this.state.game.boardState[p] === 0) xCount += 1;
-            else if (this.state.game.boardState[p] === 1) oCount += 1;
-
-            score += p === index ? 0 : this._getScore(AIScore[this.state.game.boardState[p]]);
-
-          });
-          if (xCount >= 2) score += this._getScore(10);
-          if (oCount >= 2) score += this._getScore(20);
-        }
-      });
-      scores.push(score);
-    });
-
-    var maxIndex = 0;
-    scores.reduce(function(maxVal, currentVal, currentIndex) {
-      if (currentVal >= maxVal) {
-        maxIndex = currentIndex;
-        return currentVal;
-      }
-      return maxVal;
-    });
-    this.handleNewMove(emptys[maxIndex]);
-  }
-
-//Returns the passed in score with the chance of the AI making a mistake
-//"Mistakes" will bias the score += 5
-  _getScore(score) {
-    //Check if AI should make a mistake
-    if(Math.random() < mistakeProbability)
-    {
-        if(Math.random() > 0.5)
-        {
-            score += Math.round(Math.random() * 5);
-        }
-        else
-        {
-            score -= Math.round(Math.random() * 5);
-        }
-    }
-
-    return score;
-  }
-
-  handleReset(e) {
-    if (e) e.preventDefault();
-    document
-      .querySelectorAll(".alert")
-      .forEach(el => (el.style.display = "none"));
-
-      var tempState = this.state.game;
-      tempState.boardState = new Array(9).fill(2);
-      tempState.turn = 0;
-      tempState.active = true;
-
-      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-
-    /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
-      this.setState({
-      boardState: new Array(9).fill(2),
-      turn: 0,
-      active: true
-    });
-    */
-  }
-
-  //updates the board with newest move and flips the "turn" to the other player
-  //  create new board state
-  //     slice the board array upto the id the move is made in
-  //     add the "turn" to that element
-  //     appened the rest of the array after id
-  //  update firebase with new array
-  handleNewMove(id) {
-   var tempState = this.state.game;
-
-   tempState.boardState = this.state.game.boardState.slice(0, id)
-      .concat(this.state.game.turn)
-      .concat(this.state.game.boardState.slice(id+1));
-
-   tempState.turn = (this.state.game.turn + 1) % 2;
-   console.log(this.state.game);
-
-   firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-
-  /* ***OLD CODE --- OLD CODE --- OLD CODE --- OLD CODE***
-   this.setState(
-      prevState => {
-        return {
-          boardState: prevState.boardState
-            .slice(0, id)
-            .concat(prevState.turn)
-            .concat(prevState.boardState.slice(id + 1)),
-          turn: (prevState.turn + 1) % 2
-        };
-      },
-      () => {
-        this.processBoard();
-      }
-    );
-    */
-  }
-
-  handleModeChange(e) {
-    e.preventDefault();
-    var tempState = this.state.game;
-    if (e.target.getAttribute("href").includes("AI")) {
-      e.target.style.background = "#d4edda";
-      document.querySelector("#twop").style.background = "none";
-      //this.setState({ mode: "AI" });
-      tempState.mode = "AI";
-      firebase.database().ref('board').set(tempState);
-      this.handleReset(null);
-    } else if (e.target.getAttribute("href").includes("2P")) {
-      e.target.style.background = "#d4edda";
-      document.querySelector("#ai").style.background = "none";
-      //this.setState({ mode: "2P" });
-      tempState.mode = "2P";
-      firebase.database().ref(`board/${this.state.game.ID}`).set(tempState);
-      this.handleReset(null);
-    }
-  }
 
   // Handles changes in the text form, updates state userName to user input
   handleChange(event) {
@@ -290,37 +108,78 @@ class App extends Component {
     this.setState({gotName: true});
   }
 
-  // placeholder for menu click event
-  // currently just updates firstload state to false
+  // handles single player games
+  // initializes with basic firebase
+  // sets player map for both moves to be made by user
   handleMenuClick(event) {
+    this.setState({singlePlayer: true});
     event.preventDefault();
-    let dbRef = firebase.database().ref('board').push();
-    let temp = this.state.game;
-    temp.ID = dbRef.key;
+    fireInit.playerMap = [this.state.userName,this.state.userName];
+    let dbRef = firebase.database().ref('board').push(fireInit);
     this.setState({firstLoad: false});
-    this.setState({game: temp});
-    this.startFirebase();
+    this.setState({gameStart: true});
+    this.setState({ID: dbRef.key});
   }
 
-  // handles component switch to settings component when menu selected
-  handleSettingsClick(event) {
+  // update state so user moves from menu to multiplayer menu
+  handleMenuClickMultiplayer(event) {
+    this.setState({singlePlayer: false});
+    this.setState({firstLoad: false});
+  }
+
+  // start a new game from scratch, initialize firebase with fireInit properties
+  handleNewGameClick(event) {
     event.preventDefault();
+    fireInit.playerMap[0] = this.state.userName;
+    fireInit.mode = "2P"; //don't want the AI to be making moves
+    let dbRef = firebase.database().ref('board').push(fireInit);//push basic board
+    this.setState({gameStart: true});
+    this.setState({ID: dbRef.key}); //add gameID so we can listen
+  }
+
+   //update game ID if someone wants to join a game with a friend
+   handleIDUpdate(id){
+      this.setState({ID: id}, ()=> {
+         let boardRef = firebase.database().ref(`board/${this.state.ID}/playerMap`);
+         //grab a snapshot of the current database value of playermap
+         boardRef.once('value', (snapshot) => {
+            if(snapshot.val()!=null){//don't do anything if its empty
+               let newMap = snapshot.val();
+               // set user as newMap[1] "o" for this game. don't change newmap 'x'
+               firebase.database().ref(`board/${this.state.ID}/playerMap`).set([newMap[0],this.state.userName]);
+            }
+         });
+      this.setState({gameStart: true});
+      });
+   }
+
+  // handles component switch to settings component when menu selected
+  handleSettingsClick() {
     this.setState({enterSettings: !this.state.enterSettings});
   }
 
-  render() {
-    // populates rows using current board state
-    const rows = [];
-    for (var i = 0; i < 3; i++) {
-      rows.push(
-        <Row
-          row={i}
-          boardState={this.state.game.boardState}
-          onNewMove={this.handleNewMove}
-          active={this.state.game.active}
-        />
-      );
-      }
+  // handles changing AI difficulty
+  // takes data from settings child component and updates state
+  handleAiDiff = (updatedProbability) => {
+    let gameState = this.state.game;
+    gameState.mistakeProbability = updatedProbability;
+    this.setState({game: gameState});
+    //console.log(this.state.game.mistakeProbability);
+  }
+
+  //handles updating timer from settings component
+  handleTimerUpdate = (newTimeLimit) => {
+    this.setState({timer: newTimeLimit, turnWarn: newTimeLimit - 10000});
+  }
+
+  //placeholder for game to menu transition
+  //may need additional game logic for player leaving game
+  handleBackToMenu() {
+    this.setState({firstLoad: true});
+    this.setState({gameStart: false});
+  }
+
+  render() {  
       // checks if username is empty or not
       // render username page if empty
       if (!this.state.gotName) {
@@ -341,38 +200,69 @@ class App extends Component {
 
       //checks its the component's first load
       //loads menu if it is
-      } else if (this.state.firstLoad && this.state.enterSettings === false) {
+      } 
+      else if (this.state.firstLoad && this.state.enterSettings === false) {
         return (
           <div>
             <Header />
-            <Menu handleMenuClick={this.handleMenuClick} handleSettingsClick={this.handleSettingsClick} username={this.state.userName} userRanking={this.state.userRanking} />
+            <Menu 
+            handleMenuClick={this.handleMenuClick} 
+            handleMenuClickMultiplayer={this.handleMenuClickMultiplayer}
+            handleSettingsClick={this.handleSettingsClick} 
+            username={this.state.userName} 
+            userRanking={this.state.userRanking} 
+            />
         </div>
         );
 
       // loads game board and functionality
-      }
+    }
     else if (this.state.enterSettings) {
-        return (
-          <div>
-            <Settings handleSettingsClick={this.handleSettingsClick}/>
-          </div>
-        )
-
-      }
+      return (
+        <div>
+          <Settings
+          handleAiDiff={this.handleAiDiff}
+          handleTimerUpdate={this.handleTimerUpdate}
+          handleSettingsClick={this.handleSettingsClick}
+          />
+        </div>
+      )
+    }
+    // load mutliplayer menu to join or start a new game
+    else if (!this.state.gameStart && !this.state.singlePlayer){
+      return (
+        <>
+        <Header />
+            <MultiplayerMenu 
+            handleNewGameClick={this.handleNewGameClick} 
+            handleJoinGameClick={this.handleMenuClickMultiplayer}
+            handleIDUpdate={this.handleIDUpdate}
+            />
+        </>
+      )
+    }
     // loads game board and functionality
+    // pass settings, game info, etc. to board to start new game
     else {
       return (
+        <>
+        <Header />
         <Board
+          singlePlayer = {this.state.singlePlayer}
           symbolsMap = {symbolsMap}
-          turn = {this.state.game.turn}
-          rows = {rows}
-          handleModeChange = {(event) => this.handleModeChange(event)}
-          handleReset = {(event) => this.handleReset(event)}
+          handleBackToMenu = {this.handleBackToMenu}
+          mistakeProbability = {this.state.mistakeProbability}
+          ID = {this.state.ID}
+          patterns = {patterns}
+          AIScore = {AIScore}
+          userName = {this.state.userName}
+          timerEnd = {this.state.timerEnd}
+          timer = {this.state.timer}
         />
+        </>
       )
     }
   }
 }
-
 
 export default App;
