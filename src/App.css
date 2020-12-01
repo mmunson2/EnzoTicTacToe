@@ -168,7 +168,7 @@ ul {
 .countdown {
   text-align: center;
   font-family: 'Righteous', sans-serif;
-  font-size: 20px;
+  padding-top: 15px;
 }
 
 .timerText {

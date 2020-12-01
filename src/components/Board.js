@@ -61,7 +61,8 @@ class Board extends React.Component {
 
       firebase.database().ref(`board/${this.props.ID}`).set(tempState);
    }
-  this.start();
+    //starts timer after a move is made
+    this.start();
  }
 
  handleReset(e) {
@@ -80,6 +81,8 @@ class Board extends React.Component {
      this.setState({timerEnd: false});
 
      firebase.database().ref(`board/${this.props.ID}`).set(tempState);
+     //pauses timer after restart
+     this.pause();
  }
 
  handleModeChange(e) {
@@ -255,6 +258,11 @@ _getScore(score) {
    this.timerRef.start();
  }
 
+ //uses timer reference to pause timer in certain situations
+ pause() {
+   this.timerRef.pause();
+ }
+
  //passed to countdown component to set refernce to access timer funcs
  handleSet(ref) {
    this.timerRef = ref;
@@ -334,14 +342,14 @@ _getScore(score) {
 
           </div>
           <div className="countdown">
-          <div className="timerText">Turn Timer:</div>
-          <Countdown
-            date={Date.now() + this.props.timer}
-            renderer={this.renderTimer}
-            ref={this.handleSet}
-            autoStart={false}
-            />
-        </div>
+            <div className="timerText">Turn Timer:</div>
+            <Countdown
+              date={Date.now() + this.props.timer}
+              renderer={this.renderTimer}
+              ref={this.handleSet}
+              autoStart={false}
+              />
+          </div>
         </div>
       );
     }
