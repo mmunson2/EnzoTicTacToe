@@ -29,16 +29,16 @@ class Settings extends React.Component {
     this.applyTrigger = this.applyTrigger.bind(this);
 }
 
-    
+
 
     //converts aiDiffculty int into text for rendering
   displayAiDifficulty() {
     if (this.state.aiDifficulty > 4) {
       return "Easy";
-    } 
+    }
     else if (this.state.aiDifficulty === 2) {
       return "Hard";
-    } 
+    }
     else {
       return "Medium";
     }
@@ -94,7 +94,7 @@ class Settings extends React.Component {
           return {
             xIcon: dog
           }
-        } 
+        }
         else {
           return {
             xIcon: X
@@ -111,7 +111,7 @@ class Settings extends React.Component {
         return {
           oIcon: cat
         }
-      } 
+      }
       else {
         return {
           oIcon: O

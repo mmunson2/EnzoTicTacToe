@@ -11,7 +11,6 @@ class Menu extends React.Component {
   // }
 
   render() {
-    console.log(this.props.userRanking);
     return (
         <div className="flexContainer">
 

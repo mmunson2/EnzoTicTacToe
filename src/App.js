@@ -56,7 +56,6 @@ class App extends Component {
     this.state = {
       userName: "",
       enterSettings: false,
-      userRanking: 0,
       totalScore: 0,
       gotName: false,
       firstLoad: true,
