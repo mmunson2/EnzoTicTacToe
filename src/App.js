@@ -109,7 +109,6 @@ class App extends Component {
           });
       } else {
         firebase.database().ref(`users/${this.state.userName}`).once("value").then((snapshot) => {
-          console.log(snapshot.val().totalScore);
           this.setState({
             username: snapshot.val().username,
             totalScore: snapshot.val().totalScore,
@@ -204,7 +203,6 @@ class App extends Component {
       .on('child_added', function(snapshot) {
         list.push(snapshot.val().username);
       });
-    console.log(list);
     var tempRanking;
     list.reverse().map((currentVal, i) => {
       firebase.database().ref(`users/${currentVal}`).update({

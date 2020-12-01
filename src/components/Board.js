@@ -85,13 +85,11 @@ class Board extends React.Component {
  handleModeChange(e) {
    e.preventDefault();
    if (e.target.getAttribute("href").includes("AI")) {
-     console.log("AI");
      e.target.style.background = "#d4edda";
      document.querySelector("#twop").style.background = "none";
      firebase.database().ref(`board/${this.props.ID}`).set({mode: "AI"});
      this.handleReset(null);
    } else if (e.target.getAttribute("href").includes("2P")) {
-     console.log("2P");
      e.target.style.background = "#d4edda";
      document.querySelector("#ai").style.background = "none";
      firebase.database().ref(`board/${this.props.ID}`).update({mode: "2P"});
@@ -120,11 +118,8 @@ class Board extends React.Component {
         });
         firebase.database().ref(`board/${this.props.ID}`).update({active: false});
 
-        this.props.calculateRanking();
         // If the user won, add 2 to their total score. (This loop occurs twice so I am adding half of the 2 each time)
-        console.log(this.state.playerMap);
         firebase.database().ref(`board/${this.props.ID}`).once('value', (snapshot) => {
-          console.log(snapshot.val().mode);
           if (snapshot.val().mode === "AI") {
             if (this.state.turn === 1) {
               var newScore = this.props.totalScore + 1;
@@ -134,10 +129,7 @@ class Board extends React.Component {
               this.props.handleUpdateScore(newScore);
             }
           } else if (!this.props.singlePlayer) {
-            console.log(this.state.playerMap[this.state.turn]);
-            console.log(this.props.userName);
             if(this.state.playerMap[this.state.turn] !== this.props.userName) {
-              console.log("the user won!");
               var newScore = this.props.totalScore + 1;
               firebase.database().ref(`users/${this.props.userName}`).update({
                 totalScore: newScore
@@ -146,6 +138,7 @@ class Board extends React.Component {
             }
           }
         });
+        this.props.calculateRanking();
         won = true;
       }
     }
