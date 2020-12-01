@@ -85,14 +85,16 @@ class Board extends React.Component {
  handleModeChange(e) {
    e.preventDefault();
    if (e.target.getAttribute("href").includes("AI")) {
+     console.log("AI");
      e.target.style.background = "#d4edda";
      document.querySelector("#twop").style.background = "none";
      firebase.database().ref(`board/${this.props.ID}`).set({mode: "AI"});
      this.handleReset(null);
    } else if (e.target.getAttribute("href").includes("2P")) {
+     console.log("2P");
      e.target.style.background = "#d4edda";
      document.querySelector("#ai").style.background = "none";
-     firebase.database().ref(`board/${this.props.ID}`).set({mode: "2P"});
+     firebase.database().ref(`board/${this.props.ID}`).update({mode: "2P"});
      this.handleReset(null);
    }
  }
@@ -118,6 +120,7 @@ class Board extends React.Component {
         });
         firebase.database().ref(`board/${this.props.ID}`).update({active: false});
 
+        this.props.calculateRanking();
         // If the user won, add 2 to their total score. (This loop occurs twice so I am adding half of the 2 each time)
         console.log(this.state.playerMap);
         firebase.database().ref(`board/${this.props.ID}`).once('value', (snapshot) => {
@@ -153,6 +156,7 @@ class Board extends React.Component {
     document.querySelector("#message2").style.display = "block";
     firebase.database().ref(`board/${this.props.ID}`).set({active: false});
 
+    this.props.calculateRanking();
     // When tied, add 1 to user's total score.
     firebase.database().ref(`users/${this.props.userName}`).update({
       totalScore: this.props.totalScore + 1
