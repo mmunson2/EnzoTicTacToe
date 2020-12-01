@@ -141,7 +141,6 @@ class Board extends React.Component {
             }
           }
         });
-        this.props.calculateRanking();
         won = true;
       }
     }
@@ -152,7 +151,6 @@ class Board extends React.Component {
     document.querySelector("#message2").style.display = "block";
     firebase.database().ref(`board/${this.props.ID}`).set({active: false});
 
-    this.props.calculateRanking();
     // When tied, add 1 to user's total score.
     firebase.database().ref(`users/${this.props.userName}`).update({
       totalScore: this.props.totalScore + 1
@@ -160,6 +158,7 @@ class Board extends React.Component {
   } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
     this.makeAIMove();
   }
+  this.props.calculateRanking();
 }
 
 
