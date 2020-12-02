@@ -31,7 +31,9 @@ class User extends React.Component {
       var userRank = 0;
       firebase.database().ref(`users/${this.props.username}`)
          .once('value', (snapshot) => {
-            userRank = snapshot.val().ranking;
+            if (snapshot.val()!=null) {
+               userRank = snapshot.val().ranking;
+            }
          })
 
       return (

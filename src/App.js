@@ -93,7 +93,6 @@ class App extends Component {
   // Handles when the User clicks the submit button. Flips the boolean gotName to true/
   handleSubmit(event) {
     event.preventDefault();
-    this.calculateRanking();
     var usernameExists = true;
     firebase.database().ref(`users/${this.state.userName}/username`).once("value", snapshot => {
       // If the username does not exist in firebase, add it.
@@ -106,7 +105,9 @@ class App extends Component {
             username: userName,
             ranking: userRanking,
             totalScore: userScore
-          });
+         }, () => {
+            this.calculateRanking();
+         });
       } else {
         firebase.database().ref(`users/${this.state.userName}`).once("value").then((snapshot) => {
           this.setState({
@@ -114,9 +115,11 @@ class App extends Component {
             totalScore: snapshot.val().totalScore,
             userRanking: snapshot.val().ranking
           })
+          this.calculateRanking();
         })
       }
     });
+
 
     this.setState({gotName: true});
   }
