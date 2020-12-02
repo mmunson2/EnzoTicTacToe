@@ -6,14 +6,12 @@ class User extends React.Component {
   constructor() {
     super();
     this.state = {
-      topUsersList: {},
-      userRank: 0
+      topUsersList: {}
     }
   }
 
   componentDidMount() {
     var list = [];
-    
     firebase.database().ref(`users/`)
       .orderByChild("totalScore")
       .limitToLast(5)
@@ -30,6 +28,11 @@ class User extends React.Component {
       .reverse().map((currentVal, i) => {
         return <li>{i+1}. {currentVal[1]}</li>
       })
+    var userRank = 0;
+    firebase.database().ref(`users/${this.props.username}`)
+      .once('value', (snapshot) => {
+        userRank = snapshot.val().ranking;
+      })
 
     return (
       <div>
@@ -44,7 +47,7 @@ class User extends React.Component {
       </ul>
       <ul>
         <b>
-          <li>{this.props.userRanking === 0 ? "" : this.props.username + ": " + this.props.userRanking + "th"}</li>
+          <li>{userRank === 0 ? "" : this.props.username + ": #" + userRank}</li>
         </b>
       </ul>
       </div>

@@ -108,10 +108,7 @@ class App extends Component {
             totalScore: userScore
           });
       } else {
-        console.log("snapshot does exist");
-        console.log(this.state.totalScore);
         firebase.database().ref(`users/${this.state.userName}`).once("value").then((snapshot) => {
-          console.log(snapshot.val().totalScore);
           this.setState({
             username: snapshot.val().username,
             totalScore: snapshot.val().totalScore,
@@ -206,21 +203,12 @@ class App extends Component {
       .on('child_added', function(snapshot) {
         list.push(snapshot.val().username);
       });
-    console.log("HELLO");
-    console.log(list);
     var tempRanking;
-    Object.entries(list)
-        .reverse().map((currentVal, i) => {
-          console.log("hello");
-          if (currentVal[1] === this.state.userName) {
-            console.log("your ranking " + i);
-            tempRanking = i;
-          }
-        });
-    this.setState({
-      userRanking: tempRanking
-    })
-    return
+    list.reverse().map((currentVal, i) => {
+      firebase.database().ref(`users/${currentVal}`).update({
+        ranking: i+1
+      })
+    });
   }
 
   render() {
@@ -294,6 +282,7 @@ class App extends Component {
         <Board
           singlePlayer = {this.state.singlePlayer}
           symbolsMap = {symbolsMap}
+          calculateRanking = {this.calculateRanking}
           handleBackToMenu = {this.handleBackToMenu}
           handleUpdateScore = {this.handleUpdateScore}
           mistakeProbability = {this.state.mistakeProbability}
