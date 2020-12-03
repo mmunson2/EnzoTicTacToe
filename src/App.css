@@ -220,3 +220,10 @@ ul {
   font-size: 18px;
   margin-top: -40px;
 }
+
+#players {
+   font-family: 'Righteous', sans-serif;
+   text-align: center;
+   font-size: 18px;
+   margin-top: -5px;
+ }
