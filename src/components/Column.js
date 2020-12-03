@@ -7,6 +7,8 @@ var symbolsMap = {
 };
 
 class Column extends React.Component {
+  
+  
   constructor(props) {
     super(props);
     this.handleNewMove = this.handleNewMove.bind(this);
@@ -20,10 +22,14 @@ class Column extends React.Component {
       document.querySelector("#message2").style.display = "block";
       return false;
     } else if (this.props.marking === 2)
-      this.props.onNewMove(parseInt(e.target.id));
+	{
+		var clickSound = document.getElementById("click-sound");
+        clickSound.play();
+		this.props.onNewMove(parseInt(e.target.id));
+	}	
   }
 
-  render() {
+  render() {	  
     return (
       <div className="col" onClick={this.handleNewMove}>
         <div className={symbolsMap[this.props.marking][0]} id={this.props.id}>

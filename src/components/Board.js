@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Row from "./Row";
+import clickSound from "../assets/sounds/pop-down.mp3"
 import firebase from '../firebase';
 import Countdown from 'react-countdown';
 
@@ -60,7 +61,8 @@ class Board extends React.Component {
 
       firebase.database().ref(`board/${this.props.ID}`).set(tempState);
    }
-  this.start();
+    //starts timer after a move is made
+    this.start();
  }
 
  handleReset(e) {
@@ -79,6 +81,8 @@ class Board extends React.Component {
      this.setState({timerEnd: false});
 
      firebase.database().ref(`board/${this.props.ID}`).set(tempState);
+     //pauses timer after restart
+     this.pause();
  }
 
  handleModeChange(e) {
@@ -91,7 +95,7 @@ class Board extends React.Component {
    } else if (e.target.getAttribute("href").includes("2P")) {
      e.target.style.background = "#d4edda";
      document.querySelector("#ai").style.background = "none";
-     firebase.database().ref(`board/${this.props.ID}`).set({mode: "2P"});
+     firebase.database().ref(`board/${this.props.ID}`).update({mode: "2P"});
      this.handleReset(null);
    }
  }
@@ -115,7 +119,28 @@ class Board extends React.Component {
           var id = index + "-" + firstMark;
           document.getElementById(id).parentNode.style.background = "#d4edda";
         });
-        firebase.database().ref(`board/${this.props.ID}`).set({active: false});
+        firebase.database().ref(`board/${this.props.ID}`).update({active: false});
+
+        // If the user won, add 2 to their total score. (This loop occurs twice so I am adding half of the 2 each time)
+        firebase.database().ref(`board/${this.props.ID}`).once('value', (snapshot) => {
+          if (snapshot.val().mode === "AI") {
+            if (this.state.turn === 1) {
+              var newScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: newScore
+              });
+              this.props.handleUpdateScore(newScore);
+            }
+          } else if (!this.props.singlePlayer) {
+            if(this.state.playerMap[this.state.turn] !== this.props.userName) {
+              var newScore = this.props.totalScore + 1;
+              firebase.database().ref(`users/${this.props.userName}`).update({
+                totalScore: newScore
+              });
+              this.props.handleUpdateScore(newScore);
+            }
+          }
+        });
         won = true;
       }
     }
@@ -125,9 +150,15 @@ class Board extends React.Component {
     document.querySelector("#message2").innerHTML = "Game Over - It's a draw";
     document.querySelector("#message2").style.display = "block";
     firebase.database().ref(`board/${this.props.ID}`).set({active: false});
+
+    // When tied, add 1 to user's total score.
+    firebase.database().ref(`users/${this.props.userName}`).update({
+      totalScore: this.props.totalScore + 1
+    });
   } else if (this.state.mode === "AI" && this.state.turn === 1 && !won) {
     this.makeAIMove();
   }
+  this.props.calculateRanking();
 }
 
 
@@ -168,7 +199,7 @@ makeAIMove() {
    });
    this.handleNewMove(emptys[maxIndex]);
  }
- 
+
 //Returns the passed in score with the chance of the AI making a mistake
 //"Mistakes" will bias the score += 5
 _getScore(score) {
@@ -223,6 +254,11 @@ _getScore(score) {
    this.timerRef.start();
  }
 
+ //uses timer reference to pause timer in certain situations
+ pause() {
+   this.timerRef.pause();
+ }
+
  //passed to countdown component to set refernce to access timer funcs
  handleSet(ref) {
    this.timerRef = ref;
@@ -269,6 +305,7 @@ _getScore(score) {
             <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.state.turn][1])}</b></p>
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
+			<audio id="click-sound" src={clickSound} preload="auto"></audio>
           </div>
           <div className="countdown">
           <div className="timerText">Turn Timer:</div>
@@ -304,16 +341,18 @@ _getScore(score) {
             <p><b>{this.state.playerMap[this.state.turn] + '\'s ( ' +String.fromCharCode(this.props.symbolsMap[this.state.turn][1]) +' )'} turn</b></p>
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
+			<audio id="click-sound" src={clickSound} preload="auto"></audio>
+
           </div>
           <div className="countdown">
-          <div className="timerText">Turn Timer:</div>
-          <Countdown
-            date={Date.now() + this.props.timer}
-            renderer={this.renderTimer}
-            ref={this.handleSet}
-            autoStart={false}
-            />
-        </div>
+            <div className="timerText">Turn Timer:</div>
+            <Countdown
+              date={Date.now() + this.props.timer}
+              renderer={this.renderTimer}
+              ref={this.handleSet}
+              autoStart={false}
+              />
+          </div>
         </div>
       );
     }
