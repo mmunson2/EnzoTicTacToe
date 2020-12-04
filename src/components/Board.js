@@ -113,7 +113,7 @@ class Board extends React.Component {
 
       if (marks.length === 3) {
         document.querySelector("#message1").innerHTML =
-          this.state.playerMap[marks[0]] + ' wins!';
+          String.fromCharCode(this.props.symbolsMap[marks[0]][1]) + " wins!";
         document.querySelector("#message1").style.display = "block";
         pattern.forEach(index => {
           var id = index + "-" + firstMark;
@@ -233,7 +233,7 @@ _getScore(score) {
      }
      //custom end message
      document.querySelector("#message1").innerHTML =
-     this.state.playerMap[winner] + " wins!";
+     String.fromCharCode(this.props.symbolsMap[winner][1]) + " wins!";
      document.querySelector("#message1").style.display = "block";
      //updates game state
      this.handleTimerEnd();
@@ -281,11 +281,7 @@ _getScore(score) {
           />
         );
       }
-      var player2 = this.state.playerMap[1];
-      if (this.state.playerMap[1] === 2){
-         player2 = "Not Yet Joined";
-      } 
-    
+
       if (this.props.singlePlayer) {
       return (
         <div className="outDiv">
@@ -324,10 +320,7 @@ _getScore(score) {
         <div className="outDiv">
           <div className="container jumbotron" id="container">
             <div id="game-ID">
-               <p> Game ID: {this.props.ID} </p>
-            </div>
-            <div id="players">
-               <p> <b>Player 1:</b> {this.state.playerMap[0]}  |  <b>Player 2:</b> {player2}</p> 
+            <p> Game ID: {this.props.ID} </p>
             </div>
             <div className="reset">
             <p>
@@ -338,7 +331,7 @@ _getScore(score) {
 
             <div className="board">{rows}</div>
             <br/>
-            <p><b>{this.state.playerMap[this.state.turn] + '\'s ( ' +String.fromCharCode(this.props.symbolsMap[this.state.turn][1]) +' )'} turn</b></p>
+            <p>Next Player: <b>{String.fromCharCode(this.props.symbolsMap[this.state.turn][1])}</b></p>
             <p className="alert alert-success" role="alert" id="message1"></p>
             <p className="alert alert-info" role="alert" id="message2"></p>
 			<audio id="click-sound" src={clickSound} preload="auto"></audio>
